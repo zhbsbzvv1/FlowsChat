@@ -442,7 +442,6 @@
                     ? "px-6 py-2 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full transition-all hover:bg-gray-200"
                     : "px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800";
 
-                // TAKİP ET / TAKİPTEN ÇIK BUTONU KESİN ÇÖZÜMÜ
                 followBtn.onclick = async () => {
                     const myRef = doc(db, "users", currentUser.uid);
                     const targetRef = doc(db, "users", targetUid);
@@ -576,7 +575,6 @@
             if (messagesUnsubscribe) messagesUnsubscribe();
         });
 
-        // MESAJ GÖNDERME KESİN ÇÖZÜMÜ
         document.getElementById('chat-send-btn').addEventListener('click', async () => {
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
@@ -594,7 +592,7 @@
                 });
                 input.value = '';
             } catch (err) {
-                showAlert("Hata", "Mesaj gönderilemedi. Lütfen Firestore rules kurallarını güncellediğinizden emin olun.");
+                showAlert("Hata", "Mesaj gönderilemedi.");
             }
         });
 
