@@ -10,12 +10,10 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
 
-    <!-- Üst Menü -->
     <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
             <h1 class="text-2xl font-black tracking-tighter cursor-pointer" onclick="window.location.href='forum.html'">FlowsChat<span class="text-indigo-600">.</span></h1>
             
-            <!-- Profil Alanı (Sağ Üst) -->
             <div id="nav-profile-area" class="relative hidden">
                 <button id="profile-dropdown-btn" class="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full transition-all">
                     <img id="nav-user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full object-cover bg-gray-200">
@@ -23,21 +21,16 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
 
-                <!-- Dropdown Menü -->
                 <div id="profile-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-50">
                     <a id="dropdown-profile-link" href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium">Profilim</a>
                     <button id="dropdown-settings-btn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium">Ayarlar</button>
-                    <div class="border-t border-gray-100 my-1"></div>
-                    <button id="dropdown-logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">Çıkış Yap</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Ana İçerik / Görünüm Alanı -->
     <main class="max-w-4xl mx-auto w-full px-4 py-10 flex-1 space-y-6">
         
-        <!-- FORUM GÖRÜNÜMÜ -->
         <div id="view-forum" class="space-y-6">
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <h2 class="text-2xl font-bold tracking-tight">Genel Tartışma</h2>
@@ -57,7 +50,6 @@
             </div>
         </div>
 
-        <!-- PROFİL GÖRÜNÜMÜ (#&profiles&kullaniciuidd) -->
         <div id="view-profile" class="hidden space-y-6">
             <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-8">
                 <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
@@ -83,7 +75,6 @@
 
     </main>
 
-    <!-- AYARLAR MODALI -->
     <div id="settings-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
             <button id="close-settings-btn" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
@@ -98,12 +89,37 @@
                 </div>
                 <button id="save-nickname-settings-btn" class="w-full py-3.5 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Kullanıcı Adını Güncelle</button>
                 <div class="border-t border-gray-100 my-2"></div>
+                <button id="modal-logout-btn" class="w-full py-3.5 px-4 bg-gray-100 text-gray-800 rounded-2xl text-sm font-medium hover:bg-gray-200 transition-all">Çıkış Yap</button>
                 <button id="modal-delete-account-btn" class="w-full py-3.5 px-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium hover:bg-red-100 transition-all">Hesabımı Kalıcı Olarak Sil</button>
             </div>
         </div>
     </div>
 
-    <!-- PROFİL DÜZENLEME MODALI -->
+    <div id="forum-auth-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
+            <div id="forum-step-google" class="space-y-6 text-center">
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-bold tracking-tight">Giriş Yap</h3>
+                    <p class="text-sm text-gray-500">Devam etmek için Google hesabınızı kullanın.</p>
+                </div>
+                <button id="forum-google-login-btn" class="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-300 rounded-2xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    Google ile Devam Et
+                </button>
+            </div>
+            <div id="forum-step-nickname" class="hidden space-y-6">
+                <div class="space-y-2 text-center">
+                    <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
+                    <p class="text-sm text-gray-500">Forumda görünecek adını belirle.</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="text" id="forum-nickname-input" placeholder="örnek: koddahisi" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    <button id="forum-save-nickname-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Devam Et ve Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="edit-profile-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
             <button id="close-edit-modal" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
@@ -124,7 +140,6 @@
         </div>
     </div>
 
-    <!-- MODERN UYARI / ONAY MODALI -->
     <div id="custom-alert-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4">
             <h4 id="alert-title" class="text-lg font-bold">Bildirim</h4>
@@ -140,14 +155,17 @@
     </footer>
 
     <script type="module">
-        import { auth, db, signOut, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs } from "./firebaseConfig.js";
+        import { auth, db, signOut, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, GoogleAuthProvider, signInWithPopup, serverTimestamp } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let currentUser = null;
         let currentUserData = null;
+        let isChecking = false;
         const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z' clip-rule='evenodd'/%3E%3C/svg%3E";
 
         const customAlert = document.getElementById('custom-alert-modal');
+        const forumAuthModal = document.getElementById('forum-auth-modal');
+
         function showAlert(title, message, callback = null) {
             document.getElementById('alert-title').innerText = title;
             document.getElementById('alert-message').innerText = message;
@@ -188,29 +206,83 @@
         document.getElementById('close-settings-btn').addEventListener('click', () => document.getElementById('settings-modal').classList.add('hidden'));
         document.getElementById('close-edit-modal').addEventListener('click', () => document.getElementById('edit-profile-modal').classList.add('hidden'));
 
-        document.getElementById('dropdown-logout-btn').addEventListener('click', async () => {
+        document.getElementById('modal-logout-btn').addEventListener('click', async () => {
             await signOut(auth);
             window.location.href = 'index.html';
         });
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            currentUser = user;
-            const snap = await getDoc(doc(db, "users", user.uid));
-            if (!snap.exists() || !snap.data().nickname) {
-                window.location.href = 'index.html';
-                return;
-            }
+            if (!isChecking) {
+                isChecking = true;
+                if (!user) {
+                    forumAuthModal.classList.remove('hidden');
+                    document.getElementById('forum-step-google').classList.remove('hidden');
+                    document.getElementById('forum-step-nickname').classList.add('hidden');
+                    isChecking = false;
+                    return;
+                }
+                currentUser = user;
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (!snap.exists() || !snap.data().nickname) {
+                    forumAuthModal.classList.remove('hidden');
+                    document.getElementById('forum-step-google').classList.add('hidden');
+                    document.getElementById('forum-step-nickname').classList.remove('hidden');
+                    isChecking = false;
+                    return;
+                }
 
-            currentUserData = snap.data();
-            document.getElementById('nav-profile-area').classList.remove('hidden');
-            document.getElementById('nav-user-nickname').innerText = currentUserData.nickname;
-            document.getElementById('nav-user-avatar').src = currentUserData.photoURL || defaultAvatar;
+                currentUserData = snap.data();
+                forumAuthModal.classList.add('hidden');
 
-            checkRoute(user);
+                document.getElementById('nav-profile-area').classList.remove('hidden');
+                document.getElementById('nav-user-nickname').innerText = currentUserData.nickname;
+                document.getElementById('nav-user-avatar').src = currentUserData.photoURL || defaultAvatar;
+
+                checkRoute(user);
+                isChecking = false;
+            }
+        });
+
+        document.getElementById('forum-google-login-btn').addEventListener('click', async () => {
+            try {
+                const res = await signInWithPopup(auth, new GoogleAuthProvider());
+                const snap = await getDoc(doc(db, "users", res.user.uid));
+                if (!snap.exists() || !snap.data().nickname) {
+                    currentUser = res.user;
+                    document.getElementById('forum-step-google').classList.add('hidden');
+                    document.getElementById('forum-step-nickname').classList.remove('hidden');
+                } else {
+                    forumAuthModal.classList.add('hidden');
+                    window.location.reload();
+                }
+            } catch { showAlert("Hata", "Google ile giriş başarısız."); }
+        });
+
+        document.getElementById('forum-save-nickname-btn').addEventListener('click', async () => {
+            const raw = document.getElementById('forum-nickname-input').value.trim();
+            const lower = raw.toLowerCase();
+
+            if (lower.length < 3) return showAlert("Uyarı", "En az 3 karakter olmalı.");
+
+            const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
+            const snap = await getDocs(q);
+            let taken = false;
+            snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
+
+            if (taken) return showAlert("Hata", "Bu kullanıcı adı alınmış.");
+
+            await setDoc(doc(db, "users", currentUser.uid), {
+                uid: currentUser.uid,
+                nickname: raw,
+                nicknameLower: lower,
+                displayName: currentUser.displayName || raw,
+                email: currentUser.email,
+                photoURL: currentUser.photoURL || "",
+                createdAt: serverTimestamp()
+            }, { merge: true });
+
+            forumAuthModal.classList.add('hidden');
+            window.location.reload();
         });
 
         window.addEventListener('hashchange', () => checkRoute(currentUser));
@@ -257,16 +329,12 @@
             }
         }
 
-        // Ayarlar İçinden Nickname Değiştirme
         document.getElementById('save-nickname-settings-btn').addEventListener('click', async () => {
             const raw = document.getElementById('settings-nickname-input').value.trim();
             const lower = raw.toLowerCase();
 
             if (lower.length < 3) return showAlert("Uyarı", "Kullanıcı adı en az 3 karakter olmalıdır.");
-
-            if (lower === currentUserData.nicknameLower) {
-                return showAlert("Bilgi", "Mevcut kullanıcı adınızla aynı.");
-            }
+            if (lower === currentUserData.nicknameLower) return showAlert("Bilgi", "Mevcut kullanıcı adınızla aynı.");
 
             try {
                 const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
@@ -282,22 +350,21 @@
                 }, { merge: true });
 
                 document.getElementById('settings-modal').classList.add('hidden');
-                showAlert("Başarılı", "Kullanıcı adınız başarıyla güncellendi.", () => window.location.reload());
+                showAlert("Başarılı", "Kullanıcı adınız güncellendi.", () => window.location.reload());
             } catch {
-                showAlert("Hata", "Kullanıcı adı güncellenirken bir sorun oluştu.");
+                showAlert("Hata", "Güncellenirken bir sorun oluştu.");
             }
         });
 
-        // Profil Düzenleme (Görünen Ad ve Fotoğraf)
         document.getElementById('remove-photo-btn').addEventListener('click', () => {
             document.getElementById('edit-photo-url').value = "";
-            showAlert("Bilgi", "Fotoğraf adresi temizlendi. Kaydet butonuna basarak varsayılan ikona dönebilirsiniz.");
+            showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan ikona dönebilirsiniz.");
         });
 
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
             const newName = document.getElementById('edit-display-name').value.trim();
             const newPhoto = document.getElementById('edit-photo-url').value.trim();
-            if (!newName) return showAlert("Uyarı", "Görünen ad boş bırakılamaz.");
+            if (!newName) return showAlert("Uyarı", "Görünen ad boş olamaz.");
 
             await setDoc(doc(db, "users", currentUser.uid), {
                 displayName: newName,
@@ -308,7 +375,6 @@
             window.location.reload();
         });
 
-        // Hesap Silme
         document.getElementById('modal-delete-account-btn').addEventListener('click', () => {
             showConfirm("Hesabı Sil", "Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz?", async () => {
                 try {
