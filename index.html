@@ -70,7 +70,7 @@
             <div id="modal-step-phone" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
                     <h3 class="text-2xl font-bold tracking-tight">Telefon Numarası</h3>
-                    <p class="text-sm text-gray-500">Güvenliğiniz için telefonunuzu girin.</p>
+                    <p class="text-sm text-gray-500">Telefonunuza SMS doğrulama kodu gönderilecektir.</p>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -78,17 +78,18 @@
                         <input type="tel" id="phone-number" placeholder="05554443322" maxlength="11" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                     </div>
                     <button id="send-otp-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
-                        Doğrulama Kodu Üret ve Gönder
+                        SMS Kodu Gönder
                     </button>
                 </div>
+                <!-- reCAPTCHA Görünmez Alanı -->
+                <div id="recaptcha-container"></div>
             </div>
 
-            <!-- AŞAMA 3: Rastgele Kod Doğrulama -->
+            <!-- AŞAMA 3: SMS Kodu Doğrulama -->
             <div id="modal-step-otp" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
-                    <h3 class="text-2xl font-bold tracking-tight">Kodu Girin</h3>
-                    <p class="text-sm text-gray-500">Sistem tarafından üretilen doğrulama kodu:</p>
-                    <div id="generated-code-display" class="text-3xl font-black text-indigo-600 tracking-widest py-2 bg-indigo-50 rounded-xl my-2"></div>
+                    <h3 class="text-2xl font-bold tracking-tight">SMS Kodunu Girin</h3>
+                    <p class="text-sm text-gray-500">Telefonunuza gelen 6 haneli doğrulama kodunu yazın.</p>
                 </div>
                 <div class="space-y-4">
                     <input type="text" id="otp-code" placeholder="123456" maxlength="6" class="w-full text-center tracking-widest text-2xl font-semibold px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all">
@@ -124,6 +125,8 @@
             getAuth, 
             signInWithPopup, 
             GoogleAuthProvider, 
+            RecaptchaVerifier,
+            signInWithPhoneNumber,
             signOut 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
@@ -155,7 +158,7 @@
         const db = getFirestore(app);
 
         let googleUser = null;
-        let randomGeneratedCode = "";
+        let confirmationResultGlobal = null;
         let currentFormattedPhone = "";
 
         // UI & Modal Elemanları
@@ -192,13 +195,24 @@
                 } else {
                     stepGoogle.classList.add('hidden');
                     stepPhone.classList.remove('hidden');
+                    setupRecaptcha();
                 }
             } catch (error) {
                 alert("Google girişi başarısız: " + error.message);
             }
         });
 
-        // 2. Rastgele Kod Üretme ve Benzersizlik Kontrolü
+        // reCAPTCHA Kurulumu (SMS Güvenliği İçin)
+        function setupRecaptcha() {
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                    'size': 'invisible',
+                    'callback': () => {}
+                });
+            }
+        }
+
+        // 2. Gerçek SMS Gönderimi (05... formatını +905... yapma ve benzersizlik kontrolü)
         document.getElementById('send-otp-btn').addEventListener('click', async () => {
             let rawPhone = document.getElementById('phone-number').value.trim();
             
@@ -238,27 +252,29 @@
                     return;
                 }
 
-                // 6 haneli rastgele kod üret
-                randomGeneratedCode = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById('generated-code-display').innerText = randomGeneratedCode;
-
+                // Firebase ile Telefona Gerçek SMS Gönder
+                const appVerifier = window.recaptchaVerifier;
+                confirmationResultGlobal = await signInWithPhoneNumber(auth, currentFormattedPhone, appVerifier);
+                
                 stepPhone.classList.add('hidden');
                 stepOtp.classList.remove('hidden');
+                alert("SMS doğrulama kodu telefonunuza gönderildi!");
             } catch (error) {
-                alert("İşlem hatası: " + error.message);
+                alert("SMS gönderim hatası: " + error.message);
             }
         });
 
-        // 3. Kodu Doğrulama & Firestore Kaydı
+        // 3. SMS Kodunu Doğrulama & Firestore Kaydı
         document.getElementById('verify-otp-btn').addEventListener('click', async () => {
-            const enteredCode = document.getElementById('otp-code').value.trim();
-            
-            if (enteredCode !== randomGeneratedCode) {
-                alert("Girdiğiniz kod hatalı! Lütfen ekrandaki kodu kontrol edin.");
+            const code = document.getElementById('otp-code').value.trim();
+            if (!code || code.length < 6) {
+                alert("Lütfen 6 haneli kodu eksiksiz yazın.");
                 return;
             }
 
             try {
+                const result = await confirmationResultGlobal.confirm(code);
+                
                 const userData = {
                     uid: googleUser.uid,
                     displayName: googleUser.displayName,
@@ -273,7 +289,7 @@
                 stepOtp.classList.add('hidden');
                 showDashboard(userData);
             } catch (error) {
-                alert("Kayıt oluşturulamadı: " + error.message);
+                alert("Doğrulama kodu geçersiz veya hatalı: " + error.message);
             }
         });
 
