@@ -70,7 +70,7 @@
             <div id="modal-step-nickname" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
                     <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
-                    <p class="text-sm text-gray-500">FlowsChat'te benzersiz bir kullanıcı adı belirle.</p>
+                    <p class="text-sm text-gray-500">Sohbetlerde görünecek adını belirle.</p>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -87,10 +87,10 @@
             <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-nickname-display"></span>!</h3>
-                    <p class="text-sm text-gray-500">Hesabınız Firestore veritabanında aktif.</p>
+                    <p class="text-sm text-gray-500">Hesabın aktif ve kullanıma hazır.</p>
                 </div>
                 <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left space-y-2 text-xs text-gray-700">
-                    <p><strong>Nickname:</strong> <span id="info-nickname"></span></p>
+                    <p><strong>Kullanıcı Adı:</strong> <span id="info-nickname"></span></p>
                     <p><strong>E-posta:</strong> <span id="info-email"></span></p>
                 </div>
                 <div class="space-y-2">
@@ -98,7 +98,7 @@
                         Çıkış Yap
                     </button>
                     <button id="delete-account-btn" class="w-full py-3 px-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium hover:bg-red-100 transition-all">
-                        Hesabımı ve Verilerimi Sil
+                        Hesabımı Kalıcı Olarak Sil
                     </button>
                 </div>
             </div>
@@ -145,18 +145,16 @@
         heroLoginBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
 
-        // SAYFA YENİLENDİĞİNDE OTURUMU KONTROL ET
+        // Sayfa Yenilendiğinde Oturum Kontrolü
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                // Firestore'dan kullanıcının verisini çek
                 const userDocRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userDocRef);
 
                 if (userSnap.exists() && userSnap.data().nickname) {
                     showDashboard(userSnap.data());
                 } else {
-                    // Oturum var ama nickname seçilmemişse nickname adımını aç
                     stepGoogle.classList.add('hidden');
                     stepNickname.classList.remove('hidden');
                     openModal();
@@ -164,7 +162,7 @@
             }
         });
 
-        // 1. Google ile Giriş ve Kayıt Kontrolü
+        // Google ile Giriş
         document.getElementById('google-login-btn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
@@ -181,17 +179,17 @@
                     stepNickname.classList.remove('hidden');
                 }
             } catch (error) {
-                alert("Google girişi başarısız: " + error.message);
+                alert("Giriş yapılamadı. Lütfen tekrar deneyin.");
             }
         });
 
-        // 2. Nickname Benzersizlik Kontrolü ve Kaydetme
+        // Nickname Kaydetme
         document.getElementById('save-nickname-btn').addEventListener('click', async () => {
             const rawNickname = document.getElementById('nickname-input').value.trim();
             const formattedNickname = rawNickname.toLowerCase();
 
             if (!formattedNickname || formattedNickname.length < 3) {
-                alert("Lütfen en az 3 karakterli geçerli bir nickname girin.");
+                alert("Lütfen en az 3 karakterli bir kullanıcı adı girin.");
                 return;
             }
 
@@ -208,7 +206,7 @@
                 });
 
                 if (isTakenByOther) {
-                    alert("Bu nickname başka bir kullanıcı tarafından alınmış. Lütfen farklı bir kullanıcı adı seçin!");
+                    alert("Bu kullanıcı adı başka biri tarafından kullanılıyor.");
                     return;
                 }
 
@@ -227,11 +225,11 @@
                 stepNickname.classList.add('hidden');
                 showDashboard(userData);
             } catch (error) {
-                alert("Nickname kaydedilemedi: " + error.message);
+                alert("Kayıt sırasında bir hata oluştu.");
             }
         });
 
-        // Dashboard Gösterimi
+        // Panel Gösterimi
         function showDashboard(data) {
             document.getElementById('user-nickname-display').innerText = data.nickname || "Kullanıcı";
             document.getElementById('info-nickname').innerText = data.nickname || "-";
@@ -249,18 +247,18 @@
             window.location.reload();
         });
 
-        // Hesabı ve Verileri Silme
+        // Hesap Silme
         document.getElementById('delete-account-btn').addEventListener('click', async () => {
-            if (confirm("Hesabınızı ve verilerinizi silmek istediğinize emin misiniz? Kullanıcı adınız boşa çıkacaktır.")) {
+            if (confirm("Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz?")) {
                 const user = auth.currentUser;
                 if (user) {
                     try {
                         await deleteDoc(doc(db, "users", user.uid));
                         await user.delete();
-                        alert("Hesabınız ve kullanıcı adınız başarıyla silindi.");
+                        alert("Hesabınız başarıyla silindi.");
                         window.location.reload();
                     } catch (error) {
-                        alert("İşlem başarısız (Yeniden giriş yapmanız gerekebilir): " + error.message);
+                        alert("İşlem başarısız. Lütfen tekrar giriş yapıp deneyin.");
                     }
                 }
             }
