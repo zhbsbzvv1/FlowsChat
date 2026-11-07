@@ -62,8 +62,8 @@
                             
                             <!-- Takipçi / Takip Edilen Sayaçları -->
                             <div class="flex items-center justify-center sm:justify-start gap-6 pt-2 text-sm">
-                                <span class="font-semibold"><strong id="followers-count">0</strong> Takipçi</span>
-                                <span class="font-semibold"><strong id="following-count">0</strong> Takip Edilen</span>
+                                <button id="open-followers-list-btn" class="hover:underline font-semibold"><strong id="followers-count">0</strong> Takipçi</button>
+                                <button id="open-following-list-btn" class="hover:underline font-semibold"><strong id="following-count">0</strong> Takip Edilen</button>
                             </div>
                         </div>
                     </div>
@@ -90,10 +90,20 @@
 
     </main>
 
-    <!-- MESAJLAŞMA MODALI (WhatsApp Tarzı + Görüldü + Çift Çizgi) -->
+    <!-- KULLANICI LİSTESİ MODALI (Takipçiler / Takip Edilenler) -->
+    <div id="users-list-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 relative space-y-4 max-h-[80vh] overflow-y-auto">
+            <button id="close-users-list-modal" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
+            <h3 id="users-modal-title" class="text-lg font-bold">Kullanıcılar</h3>
+            <div id="users-modal-container" class="space-y-3">
+                <!-- Liste -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MESAJLAŞMA MODALI -->
     <div id="chat-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 relative flex flex-col h-[600px] overflow-hidden">
-            <!-- Sohbet Üst Bar -->
             <div class="p-4 bg-white border-b border-gray-100 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <img id="chat-peer-avatar" src="" class="w-10 h-10 rounded-full object-cover bg-gray-200">
@@ -105,12 +115,10 @@
                 <button id="close-chat-modal" class="text-gray-400 hover:text-black text-xl font-bold">&times;</button>
             </div>
 
-            <!-- Mesaj Akış Alanı -->
             <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 flex flex-col">
-                <!-- Mesajlar buraya yüklenecek -->
+                <!-- Mesajlar -->
             </div>
 
-            <!-- Mesaj Gönderme Alanı -->
             <div class="p-4 bg-white border-t border-gray-100 flex gap-2">
                 <input type="text" id="chat-input-text" placeholder="Mesaj yazın..." class="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none text-sm">
                 <button id="chat-send-btn" class="px-6 py-3 bg-black text-white rounded-2xl text-sm font-semibold hover:bg-gray-800 transition-all">Gönder</button>
@@ -153,7 +161,7 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Profil Fotoğrafı URL</label>
                     <input type="text" id="edit-photo-url" placeholder="https://..." class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                 </div>
-                <button id="remove-photo-btn" class="w-full py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl text-xs font-semibold transition-all">Resmi Kaldır (Varsayılan Beyaz Adam Yap)</button>
+                <button id="remove-photo-btn" class="w-full py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl text-xs font-semibold transition-all">Resmi Kaldır (Varsayılan Avatara Dön)</button>
                 <button id="save-profile-btn" class="w-full py-3.5 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Değişiklikleri Kaydet</button>
             </div>
         </div>
@@ -181,7 +189,8 @@
         let currentUserData = null;
         let activeChatUserId = null;
         let messagesUnsubscribe = null;
-        const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695 z' clip-rule='evenodd'/%3E%3C/svg%3E";
+        
+        const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23f3f4f6'%3E%3Crect width='100' height='100' rx='50' fill='%23e0e7ff'/%3E%3Cpath d='M50 45a18 18 0 100-36 18 18 0 000 36zm0 9c-22.09 0-40 13.43-40 30v2h80v-2c0-16.57-17.91-30-40-30z' fill='%234f46e5'/%3E%3C/svg%3E";
 
         function showAlert(title, message, callback = null) {
             document.getElementById('alert-title').innerText = title;
@@ -219,6 +228,7 @@
         });
         document.getElementById('close-settings-btn').addEventListener('click', () => document.getElementById('settings-modal').classList.add('hidden'));
         document.getElementById('close-edit-modal').addEventListener('click', () => document.getElementById('edit-profile-modal').classList.add('hidden'));
+        document.getElementById('close-users-list-modal').addEventListener('click', () => document.getElementById('users-list-modal').classList.add('hidden'));
 
         document.getElementById('modal-logout-btn').addEventListener('click', async () => {
             await signOut(auth);
@@ -335,22 +345,58 @@
                 followBtn.onclick = async () => {
                     const myRef = doc(db, "users", currentUser.uid);
                     const targetRef = doc(db, "users", targetUid);
-                    
+                    const mySnap = await getDoc(myRef);
+                    const myData = mySnap.data();
+                    let myFollowing = myData.following || [];
+
                     if (isFollowing) {
                         await updateDoc(targetRef, { followers: followers.filter(id => id !== currentUser.uid) });
-                        const mySnap = await getDoc(myRef);
-                        const myFollowing = mySnap.data().following || [];
                         await updateDoc(myRef, { following: myFollowing.filter(id => id !== targetUid) });
                     } else {
                         await updateDoc(targetRef, { followers: [...followers, currentUser.uid] });
-                        const mySnap = await getDoc(myRef);
-                        const myFollowing = mySnap.data().following || [];
                         await updateDoc(myRef, { following: [...myFollowing, targetUid] });
                     }
                     loadProfileData(targetUid);
                 };
 
                 messageBtn.onclick = () => openChatModal(targetUid, data);
+            }
+
+            document.getElementById('open-followers-list-btn').onclick = () => showUsersList("Takipçiler", followers);
+            document.getElementById('open-following-list-btn').onclick = () => showUsersList("Takip Edilenler", following);
+        }
+
+        async function showUsersList(title, uids) {
+            document.getElementById('users-modal-title').innerText = title;
+            const container = document.getElementById('users-modal-container');
+            container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">Yükleniyor...</div>`;
+            document.getElementById('users-list-modal').classList.remove('hidden');
+
+            if (uids.length === 0) {
+                container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">Henüz kimse yok.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            for (let uid of uids) {
+                const snap = await getDoc(doc(db, "users", uid));
+                if (snap.exists()) {
+                    const u = snap.data();
+                    const div = document.createElement('div');
+                    div.className = "flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all";
+                    div.innerHTML = `
+                        <img src="${u.photoURL || defaultAvatar}" class="w-9 h-9 rounded-full object-cover bg-gray-200">
+                        <div>
+                            <h4 class="text-xs font-bold">${u.displayName || u.nickname}</h4>
+                            <span class="text-[11px] text-gray-500">@${u.nickname}</span>
+                        </div>
+                    `;
+                    div.onclick = () => {
+                        document.getElementById('users-list-modal').classList.add('hidden');
+                        window.location.hash = `#profiles&${uid}`;
+                    };
+                    container.appendChild(div);
+                }
             }
         }
 
@@ -456,7 +502,7 @@
 
         document.getElementById('remove-photo-btn').addEventListener('click', () => {
             document.getElementById('edit-photo-url').value = "";
-            showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan ikona dönebilirsiniz.");
+            showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan avatara dönebilirsiniz.");
         });
 
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
