@@ -7,7 +7,8 @@ import {
     signOut,
     sendSignInLinkToEmail,
     isSignInWithEmailLink,
-    signInWithEmailLink 
+    signInWithEmailLink,
+    updateProfile 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -20,7 +21,7 @@ import {
     where,
     getDocs,
     serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firestore/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
@@ -46,6 +47,7 @@ export {
     sendSignInLinkToEmail,
     isSignInWithEmailLink,
     signInWithEmailLink,
+    updateProfile,
     doc, 
     setDoc, 
     getDoc, 
