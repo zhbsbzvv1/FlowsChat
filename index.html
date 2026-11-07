@@ -74,8 +74,8 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Telefon (+90...)</label>
-                        <input type="tel" id="phone-number" placeholder="+905554443322" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Telefon Numarası</label>
+                        <input type="tel" id="phone-number" placeholder="05554443322" maxlength="11" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                     </div>
                     <button id="send-otp-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
                         SMS Doğrulama Kodu Gönder
@@ -140,7 +140,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Paylaştığın Firebase Yapılandırması
+        // Firebase Yapılandırması
         const firebaseConfig = {
             apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
             authDomain: "flowschat-f611b.firebaseapp.com",
@@ -210,18 +210,35 @@
             }
         }
 
-        // 2. SMS Gönderimi (1 Telefon Numarasına 1 Kişi Kontrolü)
+        // 2. SMS Gönderimi (05... ile yazılan numarayı otomatik +905... yapma ve benzersizlik kontrolü)
         document.getElementById('send-otp-btn').addEventListener('click', async () => {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-            if (!phoneNumber) {
-                alert("Lütfen telefon numaranızı girin (+90...)");
+            let rawPhone = document.getElementById('phone-number').value.trim();
+            
+            if (!rawPhone) {
+                alert("Lütfen telefon numaranızı girin (Örn: 05554443322)");
+                return;
+            }
+
+            // Boşlukları ve tireleri temizle
+            rawPhone = rawPhone.replace(/\s+/g, '').replace(/-/g, '');
+
+            // Eğer kullanıcı 0 ile başlatmışsa (0555...), başındaki 0'ı atıp +90 ekle
+            let formattedPhone = "";
+            if (rawPhone.startsWith('0')) {
+                formattedPhone = '+90' + rawPhone.substring(1);
+            } else if (rawPhone.startsWith('5')) {
+                formattedPhone = '+90' + rawPhone;
+            } else if (rawPhone.startsWith('+90')) {
+                formattedPhone = rawPhone;
+            } else {
+                alert("Lütfen geçerli bir Türkiye telefon numarası girin (Örn: 05554443322)");
                 return;
             }
 
             try {
                 // VERİTABANINDA TELEFON NUMARASININ BAŞKASI TARAFINDAN KULLANILIP KULLANILMADIĞINI KONTROL ET
                 const usersRef = collection(db, "users");
-                const q = query(usersRef, where("phoneNumber", "==", phoneNumber));
+                const q = query(usersRef, where("phoneNumber", "==", formattedPhone));
                 const querySnapshot = await getDocs(q);
 
                 let isUsedByAnother = false;
@@ -237,7 +254,7 @@
                 }
 
                 // Numara boşta ise SMS kodunu gönder
-                confirmationResultGlobal = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+                confirmationResultGlobal = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
                 stepPhone.classList.add('hidden');
                 stepOtp.classList.remove('hidden');
             } catch (error) {
