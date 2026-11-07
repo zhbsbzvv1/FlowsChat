@@ -13,10 +13,14 @@ import {
     setDoc, 
     getDoc, 
     deleteDoc,
+    collection,
+    query,
+    where,
+    getDocs,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// FlowsChat Firebase Yapılandırması (Hassas Bilgiler)
+// FlowsChat Firebase Yapılandırması
 const firebaseConfig = {
     apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
     authDomain: "flowschat-f611b.firebaseapp.com",
@@ -33,4 +37,19 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { auth, db, GoogleAuthProvider, signInWithPopup, signOut, doc, setDoc, getDoc, deleteDoc, serverTimestamp };
+export { 
+    auth, 
+    db, 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    signOut, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    deleteDoc, 
+    collection, 
+    query, 
+    where, 
+    getDocs, 
+    serverTimestamp 
+};
