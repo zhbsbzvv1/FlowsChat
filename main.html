@@ -249,7 +249,6 @@
             window.location.href = 'index.html';
         });
 
-        // HESAP SİLME KESİN ÇÖZÜMÜ: Herkesin takipçi ve takip edilen listesinden temizle
         document.getElementById('modal-delete-account-btn').addEventListener('click', () => {
             document.getElementById('settings-modal').classList.add('hidden');
             showAlert("Hesabı Sil", "Hesabını, mesajlarını ve diğer kullanıcılardaki takipçi/takip edilen bağlantılarını kalıcı olarak silmek istediğine emin misin?", async () => {
@@ -257,7 +256,6 @@
                     const uid = currentUser.uid;
                     const batch = writeBatch(db);
 
-                    // 1. Tüm sohbetleri temizle
                     const chatsSnap = await getDocs(collection(db, "chats"));
                     chatsSnap.forEach(chatDoc => {
                         if (chatDoc.id.includes(uid)) {
@@ -265,7 +263,6 @@
                         }
                     });
 
-                    // 2. Diğer tüm kullanıcıların followers / following listelerinden bu UID'yi çıkar
                     const allUsersSnap = await getDocs(collection(db, "users"));
                     allUsersSnap.forEach(userDoc => {
                         if (userDoc.id !== uid) {
@@ -292,7 +289,6 @@
                         }
                     });
 
-                    // 3. Kendi kullanıcı belgesini sil
                     batch.delete(doc(db, "users", uid));
 
                     await batch.commit();
@@ -445,8 +441,30 @@
             document.getElementById('profile-nickname').innerText = data.nickname;
             document.getElementById('profile-avatar').src = data.photoURL || defaultAvatar;
 
-            const followers = data.followers || [];
-            const following = data.following || [];
+            let followers = data.followers || [];
+            let following = data.following || [];
+
+            // HAYALET TEMİZLİK KONTROLÜ: Listede olup veritabanında silinmiş kullanıcı ID'lerini temizle
+            let validFollowers = [];
+            for (let fUid of followers) {
+                const fSnap = await getDoc(doc(db, "users", fUid));
+                if (fSnap.exists()) validFollowers.push(fUid);
+            }
+            if (validFollowers.length !== followers.length) {
+                await updateDoc(doc(db, "users", targetUid), { followers: validFollowers });
+                followers = validFollowers;
+            }
+
+            let validFollowing = [];
+            for (let fUid of following) {
+                const fSnap = await getDoc(doc(db, "users", fUid));
+                if (fSnap.exists()) validFollowing.push(fUid);
+            }
+            if (validFollowing.length !== following.length) {
+                await updateDoc(doc(db, "users", targetUid), { following: validFollowing });
+                following = validFollowing;
+            }
+
             document.getElementById('followers-count').innerText = followers.length;
             document.getElementById('following-count').innerText = following.length;
 
