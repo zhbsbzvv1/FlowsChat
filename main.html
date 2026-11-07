@@ -54,11 +54,11 @@
                         <img id="profile-avatar" src="" alt="Avatar" class="w-28 h-28 rounded-full object-cover border-4 border-gray-100 bg-gray-200 shadow-inner">
                         <div class="space-y-2 flex-1">
                             <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <h2 id="profile-display-name" class="text-2xl font-black tracking-tight">Yükleniyor...</h2>
+                                <h2 id="profile-display-name" class="text-2xl font-black tracking-tight"></h2>
                                 <button id="edit-profile-btn" class="hidden px-5 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-full transition-all">Profili Düzenle</button>
                                 <button id="follow-action-btn" class="hidden px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800">Takip Et</button>
                             </div>
-                            <p class="text-sm text-gray-500 font-medium">@<span id="profile-nickname">...</span></p>
+                            <p class="text-sm text-gray-500 font-medium">@<span id="profile-nickname"></span></p>
                             
                             <!-- Takipçi / Takip Edilen Sayaçları -->
                             <div class="flex items-center justify-center sm:justify-start gap-6 pt-2 text-sm">
@@ -335,9 +335,9 @@
             if (hash.startsWith('#profiles&')) {
                 const targetUid = hash.replace('#profiles&', '');
                 
-                // ESKİ PROFİLİN GÖZÜKMESİNİ ÖNLEMEK İÇİN ANINDA SIFIRLA
-                document.getElementById('profile-display-name').innerText = "Yükleniyor...";
-                document.getElementById('profile-nickname').innerText = "...";
+                // ESKİ PROFİLİN GÖZÜKMEMESİ İÇİN ANINDA ALANLARI TEMİZLE (BOŞALT)
+                document.getElementById('profile-display-name').innerText = "";
+                document.getElementById('profile-nickname').innerText = "";
                 document.getElementById('profile-avatar').src = defaultAvatar;
                 document.getElementById('followers-count').innerText = "0";
                 document.getElementById('following-count').innerText = "0";
