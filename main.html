@@ -90,7 +90,7 @@
 
     </main>
 
-    <!-- KULLANICI LİSTESİ MODALI (Takipçiler / Takip Edilenler) -->
+    <!-- KULLANICI LİSTESİ MODALI -->
     <div id="users-list-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 relative space-y-4 max-h-[80vh] overflow-y-auto">
             <button id="close-users-list-modal" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
@@ -187,7 +187,6 @@
         let currentUserData = null;
         let activeChatUserId = null;
         let messagesUnsubscribe = null;
-        let sidebarUnsubscribes = [];
         let hasInitialized = false;
         
         const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='100%25' height='100%25'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23f3f4f6'/%3E%3Cpath d='M12 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5z' fill='%239ca3af'/%3E%3C/svg%3E";
@@ -369,7 +368,7 @@
                 const messagesRef = collection(db, "chats", chatId, "messages");
                 
                 const q = query(messagesRef, orderBy("createdAt", "desc"));
-                const unsub = onSnapshot(q, (snapshot) => {
+                onSnapshot(q, (snapshot) => {
                     let chatCard = document.getElementById(`sidebar-chat-${peer.uid}`);
                     
                     if (snapshot.empty) {
@@ -400,7 +399,6 @@
 
                     chatCard.onclick = () => openChatModal(peer.uid, peer);
                 });
-                sidebarUnsubscribes.push(unsub);
             }
         }
 
@@ -444,20 +442,31 @@
                     ? "px-6 py-2 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full transition-all hover:bg-gray-200"
                     : "px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800";
 
+                // TAKİP ET / TAKİPTEN ÇIK BUTONU KESİN ÇÖZÜMÜ
                 followBtn.onclick = async () => {
                     const myRef = doc(db, "users", currentUser.uid);
                     const targetRef = doc(db, "users", targetUid);
+                    
                     const mySnap = await getDoc(myRef);
-                    const myData = mySnap.data();
+                    const targetSnap = await getDoc(targetRef);
+
+                    let myData = mySnap.data();
+                    let targetData = targetSnap.data();
+
                     let myFollowing = myData.following || [];
+                    let targetFollowers = targetData.followers || [];
 
                     if (isFollowing) {
-                        await updateDoc(targetRef, { followers: followers.filter(id => id !== currentUser.uid) });
-                        await updateDoc(myRef, { following: myFollowing.filter(id => id !== targetUid) });
+                        targetFollowers = targetFollowers.filter(id => id !== currentUser.uid);
+                        myFollowing = myFollowing.filter(id => id !== targetUid);
                     } else {
-                        await updateDoc(targetRef, { followers: [...followers, currentUser.uid] });
-                        await updateDoc(myRef, { following: [...myFollowing, targetUid] });
+                        if (!targetFollowers.includes(currentUser.uid)) targetFollowers.push(currentUser.uid);
+                        if (!myFollowing.includes(targetUid)) myFollowing.push(targetUid);
                     }
+
+                    await updateDoc(targetRef, { followers: targetFollowers });
+                    await updateDoc(myRef, { following: myFollowing });
+                    
                     loadProfileData(targetUid);
                 };
 
@@ -474,7 +483,7 @@
             container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">Yükleniyor...</div>`;
             document.getElementById('users-list-modal').classList.remove('hidden');
 
-            if (uids.length === 0) {
+            if (!uids || uids.length === 0) {
                 container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">Henüz kimse yok.</div>`;
                 return;
             }
@@ -567,20 +576,26 @@
             if (messagesUnsubscribe) messagesUnsubscribe();
         });
 
+        // MESAJ GÖNDERME KESİN ÇÖZÜMÜ
         document.getElementById('chat-send-btn').addEventListener('click', async () => {
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
             if (!text || !activeChatUserId) return;
 
             const chatId = getChatId(currentUser.uid, activeChatUserId);
-            await addDoc(collection(db, "chats", chatId, "messages"), {
-                senderUid: currentUser.uid,
-                receiverUid: activeChatUserId,
-                text: text,
-                seen: false,
-                createdAt: serverTimestamp()
-            });
-            input.value = '';
+            
+            try {
+                await addDoc(collection(db, "chats", chatId, "messages"), {
+                    senderUid: currentUser.uid,
+                    receiverUid: activeChatUserId,
+                    text: text,
+                    seen: false,
+                    createdAt: serverTimestamp()
+                });
+                input.value = '';
+            } catch (err) {
+                showAlert("Hata", "Mesaj gönderilemedi. Lütfen Firestore rules kurallarını güncellediğinizden emin olun.");
+            }
         });
 
         document.getElementById('save-nickname-settings-btn').addEventListener('click', async () => {
