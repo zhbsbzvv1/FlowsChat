@@ -442,6 +442,7 @@
                     ? "px-6 py-2 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full transition-all hover:bg-gray-200"
                     : "px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800";
 
+                // TAKİP ET / TAKİPTEN ÇIK - Garanti ve Hızlı İşlem
                 followBtn.onclick = async () => {
                     const myRef = doc(db, "users", currentUser.uid);
                     const targetRef = doc(db, "users", targetUid);
@@ -455,12 +456,12 @@
                     let myFollowing = myData.following || [];
                     let targetFollowers = targetData.followers || [];
 
-                    if (isFollowing) {
+                    if (targetFollowers.includes(currentUser.uid)) {
                         targetFollowers = targetFollowers.filter(id => id !== currentUser.uid);
                         myFollowing = myFollowing.filter(id => id !== targetUid);
                     } else {
-                        if (!targetFollowers.includes(currentUser.uid)) targetFollowers.push(currentUser.uid);
-                        if (!myFollowing.includes(targetUid)) myFollowing.push(targetUid);
+                        targetFollowers.push(currentUser.uid);
+                        myFollowing.push(targetUid);
                     }
 
                     await updateDoc(targetRef, { followers: targetFollowers });
@@ -575,7 +576,8 @@
             if (messagesUnsubscribe) messagesUnsubscribe();
         });
 
-        document.getElementById('chat-send-btn').addEventListener('click', async () => {
+        // MESAJ GÖNDERME - Kesin Garantili Tetikleyici
+        document.getElementById('chat-send-btn').onclick = async () => {
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
             if (!text || !activeChatUserId) return;
@@ -592,10 +594,10 @@
                 });
                 input.value = '';
             } catch (err) {
-                console.error("Mesaj gönderme hatası:", err);
+                console.error("Mesaj hatası:", err);
                 showAlert("Hata", "Mesaj gönderilemedi: " + err.message);
             }
-        });
+        };
 
         document.getElementById('save-nickname-settings-btn').addEventListener('click', async () => {
             const raw = document.getElementById('settings-nickname-input').value.trim();
