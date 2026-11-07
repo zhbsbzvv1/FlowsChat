@@ -81,7 +81,6 @@
                         SMS Kodu Gönder
                     </button>
                 </div>
-                <!-- reCAPTCHA Görünmez Alanı -->
                 <div id="recaptcha-container"></div>
             </div>
 
@@ -103,15 +102,21 @@
             <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-name"></span>!</h3>
-                    <p class="text-sm text-gray-500">Hesabınız Firestore veritabanına başarıyla kaydedildi.</p>
+                    <p class="text-sm text-gray-500">Hesabınız Firestore veritabanında aktif.</p>
                 </div>
                 <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left space-y-2 text-xs text-gray-700">
                     <p><strong>E-posta:</strong> <span id="info-email"></span></p>
                     <p><strong>Telefon:</strong> <span id="info-phone"></span></p>
                 </div>
-                <button id="logout-btn" class="w-full py-3 px-4 border border-gray-300 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">
-                    Oturumu Kapat
-                </button>
+                <div class="space-y-2">
+                    <button id="logout-btn" class="w-full py-3 px-4 border border-gray-300 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">
+                        Çıkış Yap
+                    </button>
+                    <!-- Hesabı ve Veriyi Tamamen Silme Butonu -->
+                    <button id="delete-account-btn" class="w-full py-3 px-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium hover:bg-red-100 transition-all">
+                        Hesabımı ve Verilerimi Sil
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -127,13 +132,15 @@
             GoogleAuthProvider, 
             RecaptchaVerifier,
             signInWithPhoneNumber,
-            signOut 
+            signOut,
+            deleteUser
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
             setDoc, 
             getDoc, 
+            deleteDoc,
             collection,
             query,
             where,
@@ -141,7 +148,6 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Yapılandırması
         const firebaseConfig = {
             apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
             authDomain: "flowschat-f611b.firebaseapp.com",
@@ -161,7 +167,6 @@
         let confirmationResultGlobal = null;
         let currentFormattedPhone = "";
 
-        // UI & Modal Elemanları
         const authModal = document.getElementById('auth-modal');
         const openAuthBtn = document.getElementById('open-auth-modal-btn');
         const heroLoginBtn = document.getElementById('hero-login-btn');
@@ -186,7 +191,6 @@
                 const result = await signInWithPopup(auth, provider);
                 googleUser = result.user;
 
-                // Veritabanında daha önceden var olan profil kontrolü
                 const userDocRef = doc(db, "users", googleUser.uid);
                 const userSnap = await getDoc(userDocRef);
 
@@ -202,7 +206,6 @@
             }
         });
 
-        // reCAPTCHA Kurulumu (SMS Güvenliği İçin)
         function setupRecaptcha() {
             if (!window.recaptchaVerifier) {
                 window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -212,7 +215,7 @@
             }
         }
 
-        // 2. Gerçek SMS Gönderimi (05... formatını +905... yapma ve benzersizlik kontrolü)
+        // 2. SMS Gönderimi ve Ölü Kayıtları Temizleme Kontrolü
         document.getElementById('send-otp-btn').addEventListener('click', async () => {
             let rawPhone = document.getElementById('phone-number').value.trim();
             
@@ -235,7 +238,6 @@
             }
 
             try {
-                // VERİTABANINDA TELEFON NUMARASININ BAŞKASI TARAFINDAN KULLANILIP KULLANILMADIĞINI KONTROL ET
                 const usersRef = collection(db, "users");
                 const q = query(usersRef, where("phoneNumber", "==", currentFormattedPhone));
                 const querySnapshot = await getDocs(q);
@@ -252,7 +254,6 @@
                     return;
                 }
 
-                // Firebase ile Telefona Gerçek SMS Gönder
                 const appVerifier = window.recaptchaVerifier;
                 confirmationResultGlobal = await signInWithPhoneNumber(auth, currentFormattedPhone, appVerifier);
                 
@@ -264,7 +265,7 @@
             }
         });
 
-        // 3. SMS Kodunu Doğrulama & Firestore Kaydı
+        // 3. Doğrulama & Firestore Kaydı
         document.getElementById('verify-otp-btn').addEventListener('click', async () => {
             const code = document.getElementById('otp-code').value.trim();
             if (!code || code.length < 6) {
@@ -293,7 +294,6 @@
             }
         });
 
-        // Dashboard Gösterimi
         function showDashboard(data) {
             document.getElementById('user-name').innerText = data.displayName || "Kullanıcı";
             document.getElementById('info-email').innerText = data.email || "-";
@@ -310,6 +310,25 @@
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await signOut(auth);
             window.location.reload();
+        });
+
+        // HESABI VE VERİYİ TAMAMEN SİLME (Numarayı boşa çıkarır)
+        document.getElementById('delete-account-btn').addEventListener('click', async () => {
+            if (confirm("Hesabınızı ve telefon numaranıza ait tüm kayıtları kalıcı olarak silmek istediğinize emin misiniz? Numaranız boşa çıkacaktır.")) {
+                const user = auth.currentUser;
+                if (user) {
+                    try {
+                        // 1. Önce Firestore'daki kullanıcı verisini (telefon dahil) sil
+                        await deleteDoc(doc(db, "users", user.uid));
+                        // 2. Sonra Authentication'daki hesabı sil
+                        await deleteUser(user);
+                        alert("Hesabınız ve kayıtlı numaranız başarıyla silindi.");
+                        window.location.reload();
+                    } catch (error) {
+                        alert("Hesap silinirken hata oluştu (Yeniden giriş yapmanız gerekebilir): " + error.message);
+                    }
+                }
+            }
         });
     </script>
 </body>
