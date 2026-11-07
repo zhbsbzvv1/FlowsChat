@@ -103,21 +103,25 @@
 
     </main>
 
-    <!-- 1. ADIM: KATEGORİ SEÇİM MODALI -->
+    <!-- 1. ADIM: GENİŞLETİLMİŞ KATEGORİ SEÇİM MODALI -->
     <div id="topic-category-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6 max-h-[85vh] overflow-y-auto">
             <button onclick="document.getElementById('topic-category-modal').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
             <div class="space-y-2 text-center">
-                <h3 class="text-2xl font-bold tracking-tight">Konu Kategorisi Seç</h3>
-                <p class="text-sm text-gray-500">Hangi kategoride paylaşım yapmak istiyorsun?</p>
+                <h3 class="text-2xl font-bold tracking-tight">Kategori Seçin</h3>
+                <p class="text-sm text-gray-500">Paylaşım yapmak istediğiniz alanı seçin.</p>
             </div>
             <div class="grid grid-cols-2 gap-3 pt-2">
-                <button onclick="selectCategory('oyun')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎮 Oyun</button>
-                <button onclick="selectCategory('yazilim')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">💻 Yazılım & Kod</button>
-                <button onclick="selectCategory('teknoloji')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">⚡ Teknoloji</button>
-                <button onclick="selectCategory('sohbet')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">☕ Genel Sohbet</button>
-                <button onclick="selectCategory('tasarim')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎨 Tasarım & Sanat</button>
-                <button onclick="selectCategory('diger')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">✨ Diğer</button>
+                <button onclick="selectCategory('game')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎮 Game & Oyun</button>
+                <button onclick="selectCategory('offtopic')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">💬 Off-Topic</button>
+                <button onclick="selectCategory('coding')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">💻 Coding & Yazılım</button>
+                <button onclick="selectCategory('hardware')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">⚡ Hardware & Donanım</button>
+                <button onclick="selectCategory('design')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎨 Design & Tasarım</button>
+                <button onclick="selectCategory('movies')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎬 Movies & Dizi/Film</button>
+                <button onclick="selectCategory('music')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🎵 Music & Müzik</button>
+                <button onclick="selectCategory('anime')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">⛩️ Anime & Manga</button>
+                <button onclick="selectCategory('crypto')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">📈 Crypto & Finans</button>
+                <button onclick="selectCategory('memes')" class="p-4 bg-gray-50 hover:bg-black hover:text-white border border-gray-200 rounded-2xl text-sm font-semibold transition-all text-center">🔥 Memes & Eğlence</button>
             </div>
         </div>
     </div>
@@ -254,7 +258,7 @@
 
     <!-- Firebase SDK ve Mantıksal Script -->
     <script type="module">
-        import { auth, db, signOut, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, orderBy } from "./firebaseConfig.js";
+        import { auth, db, signOut, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, addDoc, updateDoc, serverTimestamp, orderBy } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -433,7 +437,6 @@
                 document.getElementById('topic-title-input').value = '';
                 document.getElementById('topic-editor').innerHTML = '';
                 
-                // İstenen formatta Hash yönlendirmesi
                 window.location.hash = `#&topic&${selectedCategory}&${encodeURIComponent(title)}&${currentUser.uid}`;
             } catch (e) {
                 showAlert("Hata", "Konu yayınlanamadı: " + e.message);
@@ -537,7 +540,6 @@
 
         async function loadSingleTopic(hash) {
             const parts = hash.split('&');
-            // #&topic&kategori&baslik&uid
             const category = parts[2];
             const title = decodeURIComponent(parts[3]);
             const authorUid = parts[4];
@@ -545,7 +547,6 @@
             const container = document.getElementById('single-topic-content');
             container.innerHTML = `<div class="text-center py-10">Konu yükleniyor...</div>`;
 
-            // Firestore'da başlığa ve yazara göre konuyu bul
             const q = query(collection(db, "topics"), where("title", "==", title), where("authorUid", "==", authorUid));
             const snap = await getDocs(q);
 
@@ -682,7 +683,6 @@
                 editBtn.classList.add('hidden');
             }
 
-            // Kullanıcının konularını listele
             const userTopicsContainer = document.getElementById('user-topics-list');
             userTopicsContainer.innerHTML = `<div class="text-xs text-gray-400">Yükleniyor...</div>`;
             const q = query(collection(db, "topics"), where("authorUid", "==", targetUid));
