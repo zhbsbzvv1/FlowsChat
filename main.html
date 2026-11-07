@@ -58,7 +58,7 @@
                                 <button id="edit-profile-btn" class="hidden px-5 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-full transition-all">Profili Düzenle</button>
                                 <button id="follow-action-btn" class="hidden px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800">Takip Et</button>
                             </div>
-                            <p class="text-sm text-gray-500 font-medium">@<span id="profile-nickname"></span></p>
+                            <p class="text-sm text-gray-500 font-medium">@<span id="profile-nickname">...</span></p>
                             
                             <!-- Takipçi / Takip Edilen Sayaçları -->
                             <div class="flex items-center justify-center sm:justify-start gap-6 pt-2 text-sm">
@@ -334,13 +334,24 @@
 
             if (hash.startsWith('#profiles&')) {
                 const targetUid = hash.replace('#profiles&', '');
+                
+                // ESKİ PROFİLİN GÖZÜKMESİNİ ÖNLEMEK İÇİN ANINDA SIFIRLA
+                document.getElementById('profile-display-name').innerText = "Yükleniyor...";
+                document.getElementById('profile-nickname').innerText = "...";
+                document.getElementById('profile-avatar').src = defaultAvatar;
+                document.getElementById('followers-count').innerText = "0";
+                document.getElementById('following-count').innerText = "0";
+                document.getElementById('edit-profile-btn').classList.add('hidden');
+                document.getElementById('follow-action-btn').classList.add('hidden');
+                document.getElementById('open-message-modal-btn').classList.add('hidden');
+
                 viewFeed.classList.add('hidden');
                 viewProfile.classList.remove('hidden');
                 await loadProfileData(targetUid);
             } else {
                 viewProfile.classList.add('hidden');
                 viewFeed.classList.remove('hidden');
-                document.getElementById('dropdown-profile-link', currentUser.uid);
+                document.getElementById('dropdown-profile-link').href = `#profiles&${currentUser.uid}`;
                 loadNewUsers();
             }
         }
@@ -444,10 +455,8 @@
             let rawFollowers = data.followers || [];
             let rawFollowing = data.following || [];
 
-            // GÜÇLÜ SENKRONİZASYON VE MÜKERRER / HAYALET TEMİZLİK KONTROLÜ
             let validFollowers = [];
             for (let fUid of rawFollowers) {
-                // Sadece benzersiz ve veritabanında gerçekten var olanları al
                 if (!validFollowers.includes(fUid)) {
                     const fSnap = await getDoc(doc(db, "users", fUid));
                     if (fSnap.exists()) validFollowers.push(fUid);
@@ -462,7 +471,6 @@
                 }
             }
 
-            // Eğer listede silinmiş, hayalet veya mükerrer ID'ler varsa veritabanını anında güncelle
             if (validFollowers.length !== rawFollowers.length || validFollowing.length !== rawFollowing.length) {
                 await updateDoc(doc(db, "users", targetUid), { 
                     followers: validFollowers,
