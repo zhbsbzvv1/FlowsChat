@@ -160,8 +160,8 @@
                     <input type="text" id="edit-display-name" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Profil Fotoğrafı URL</label>
-                    <input type="text" id="edit-photo-url" placeholder="https://..." class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Profil Fotoğrafı Dosyası</label>
+                    <input type="file" id="edit-photo-file" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer">
                 </div>
                 <button id="remove-photo-btn" class="w-full py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl text-xs font-semibold transition-all">Resmi Kaldır (Varsayılan Avatara Dön)</button>
                 <button id="save-profile-btn" class="w-full py-3.5 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Değişiklikleri Kaydet</button>
@@ -199,8 +199,8 @@
         let currentPage = 1;
         const itemsPerPage = 5;
 
-        // Okunmamış mesaj takibi için harita (chatId -> count)
-        const unreadMessagesMap = {};
+        let unreadMessagesMap = {};
+        let uploadedPhotoBase64 = "";
         
         const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='100%25' height='100%25'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23f3f4f6'/%3E%3Cpath d='M12 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5z' fill='%239ca3af'/%3E%3C/svg%3E";
 
@@ -504,7 +504,6 @@
                         return;
                     }
 
-                    // Okunmamış mesaj sayısını hesapla (bana gelen ve seen=false olanlar)
                     let unreadCount = 0;
                     snapshot.forEach(docSnap => {
                         const m = docSnap.data();
@@ -592,7 +591,8 @@
                 messageBtn.classList.add('hidden');
                 editBtn.onclick = () => {
                     document.getElementById('edit-display-name').value = data.displayName || "";
-                    document.getElementById('edit-photo-url').value = data.photoURL || "";
+                    uploadedPhotoBase64 = data.photoURL || "";
+                    document.getElementById('edit-photo-file').value = "";
                     document.getElementById('edit-profile-modal').classList.remove('hidden');
                 };
             } else {
@@ -784,22 +784,32 @@
             showAlert("Başarılı", "Kullanıcı adınız güncellendi.");
         });
 
+        document.getElementById('edit-photo-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (uploadEvent) => {
+                uploadedPhotoBase64 = uploadEvent.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
         document.getElementById('remove-photo-btn').addEventListener('click', () => {
-            document.getElementById('edit-photo-url').value = "";
+            uploadedPhotoBase64 = "";
+            document.getElementById('edit-photo-file').value = "";
             showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan avatara dönebilirsiniz.");
         });
 
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
             const newName = document.getElementById('edit-display-name').value.trim();
-            const newPhoto = document.getElementById('edit-photo-url').value.trim();
             if (!newName) return showAlert("Uyarı", "Görünen ad boş olamaz.");
 
-            await setDoc(doc(db, "users", currentUser.uid), { displayName: newName, photoURL: newPhoto }, { merge: true });
+            await setDoc(doc(db, "users", currentUser.uid), { displayName: newName, photoURL: uploadedPhotoBase64 }, { merge: true });
             document.getElementById('edit-profile-modal').classList.add('hidden');
             
             currentUserData.displayName = newName;
-            currentUserData.photoURL = newPhoto;
-            document.getElementById('nav-user-avatar').src = newPhoto || defaultAvatar;
+            currentUserData.photoURL = uploadedPhotoBase64;
+            document.getElementById('nav-user-avatar').src = uploadedPhotoBase64 || defaultAvatar;
             checkRoute();
             showAlert("Başarılı", "Profiliniz güncellendi.");
         });
