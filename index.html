@@ -22,10 +22,10 @@
             Anlık, sade ve kesintisiz iletişim.
         </h2>
         <p class="text-gray-500 mt-4 max-w-md text-base">
-            FlowsChat topluluğuna katılmak ve forumda sohbet etmek için hemen giriş yapın.
+            FlowsChat topluluğuna katılmak ve sohbet etmek için hemen giriş yapın.
         </p>
         <button id="hero-login-btn" class="mt-8 bg-black text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl">
-            Foruma Git / Giriş Yap
+            Ana Sayfaya Git / Giriş Yap
         </button>
     </main>
 
@@ -60,7 +60,7 @@
             <div id="modal-step-nickname" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
                     <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
-                    <p class="text-sm text-gray-500">Sohbetlerde ve forumda görünecek adını belirle.</p>
+                    <p class="text-sm text-gray-500">Sohbetlerde ve profilde görünecek adını belirle.</p>
                 </div>
                 <div class="space-y-4">
                     <input type="text" id="nickname-input" placeholder="örnek: koddahisi" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
@@ -101,7 +101,7 @@
         document.getElementById('open-auth-modal-btn').addEventListener('click', openModal);
         document.getElementById('hero-login-btn').addEventListener('click', () => {
             if (currentUser) {
-                window.location.href = 'forum.html';
+                window.location.href = 'main.html';
             } else {
                 openModal();
             }
@@ -114,7 +114,7 @@
                 currentUser = user;
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists() && snap.data().nickname) {
-                    window.location.href = 'forum.html';
+                    window.location.href = 'main.html';
                 } else {
                     authModal.classList.remove('hidden');
                     document.getElementById('modal-step-google').classList.add('hidden');
@@ -131,7 +131,7 @@
                 const snap = await getDoc(doc(db, "users", res.user.uid));
                 if (snap.exists() && snap.data().nickname) {
                     closeModal();
-                    window.location.href = 'forum.html';
+                    window.location.href = 'main.html';
                 } else {
                     document.getElementById('modal-step-google').classList.add('hidden');
                     document.getElementById('modal-step-nickname').classList.remove('hidden');
@@ -160,11 +160,13 @@
                 displayName: currentUser.displayName || raw,
                 email: currentUser.email,
                 photoURL: currentUser.photoURL || "",
+                followers: [],
+                following: [],
                 createdAt: serverTimestamp()
             }, { merge: true });
 
             closeModal();
-            window.location.href = 'forum.html';
+            window.location.href = 'main.html';
         });
     </script>
 </body>
