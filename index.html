@@ -40,7 +40,7 @@
         &copy; 2026 FlowsChat. Tüm hakları saklıdır.
     </footer>
 
-    <!-- POP-UP MODAL (Giriş / Panel) -->
+    <!-- POP-UP MODAL (Giriş / Nickname / Panel) -->
     <div id="auth-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
             
@@ -66,15 +66,32 @@
                 </button>
             </div>
 
-            <!-- Giriş Başarılı / Kullanıcı Paneli -->
+            <!-- AŞAMA 2: Benzersiz Nickname (Kullanıcı Adı) Belirleme -->
+            <div id="modal-step-nickname" class="hidden space-y-6">
+                <div class="space-y-2 text-center">
+                    <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
+                    <p class="text-sm text-gray-500">FlowsChat'te benzersiz bir kullanıcı adı belirle.</p>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nickname</label>
+                        <input type="text" id="nickname-input" placeholder="örnek: koddahisi" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    </div>
+                    <button id="save-nickname-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
+                        Devam Et
+                    </button>
+                </div>
+            </div>
+
+            <!-- AŞAMA 3: Giriş Başarılı / Kullanıcı Paneli -->
             <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
                 <div class="space-y-2">
-                    <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-name"></span>!</h3>
+                    <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-nickname-display"></span>!</h3>
                     <p class="text-sm text-gray-500">Hesabınız Firestore veritabanında aktif.</p>
                 </div>
                 <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left space-y-2 text-xs text-gray-700">
+                    <p><strong>Nickname:</strong> <span id="info-nickname"></span></p>
                     <p><strong>E-posta:</strong> <span id="info-email"></span></p>
-                    <p><strong>Kullanıcı ID:</strong> <span id="info-uid"></span></p>
                 </div>
                 <div class="space-y-2">
                     <button id="logout-btn" class="w-full py-3 px-4 border border-gray-300 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">
@@ -89,9 +106,24 @@
         </div>
     </div>
 
-    <!-- Ana Mantık (firebaseConfig.js dosyasından içe aktarır) -->
+    <!-- Ana Mantık -->
     <script type="module">
-        import { auth, db, GoogleAuthProvider, signInWithPopup, signOut, doc, setDoc, getDoc, deleteDoc, serverTimestamp } from "./firebaseConfig.js";
+        import { 
+            auth, 
+            db, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signOut, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            deleteDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            serverTimestamp 
+        } from "./firebaseConfig.js";
 
         let currentUser = null;
 
@@ -101,6 +133,7 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
 
         const stepGoogle = document.getElementById('modal-step-google');
+        const stepNickname = document.getElementById('modal-step-nickname');
         const stepDashboard = document.getElementById('modal-step-dashboard');
 
         const openModal = () => authModal.classList.remove('hidden');
@@ -110,37 +143,83 @@
         heroLoginBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
 
-        // Google ile Giriş ve Firestore Kaydı
+        // 1. Google ile Giriş ve Kayıt Kontrolü
         document.getElementById('google-login-btn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
                 const result = await signInWithPopup(auth, provider);
                 currentUser = result.user;
 
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (userSnap.exists() && userSnap.data().nickname) {
+                    showDashboard(userSnap.data());
+                } else {
+                    stepGoogle.classList.add('hidden');
+                    stepNickname.classList.remove('hidden');
+                }
+            } catch (error) {
+                alert("Google girişi başarısız: " + error.message);
+            }
+        });
+
+        // 2. Nickname Benzersizlik Kontrolü ve Kaydetme
+        document.getElementById('save-nickname-btn').addEventListener('click', async () => {
+            const rawNickname = document.getElementById('nickname-input').value.trim();
+            const formattedNickname = rawNickname.toLowerCase();
+
+            if (!formattedNickname || formattedNickname.length < 3) {
+                alert("Lütfen en az 3 karakterli geçerli bir nickname girin.");
+                return;
+            }
+
+            try {
+                // VERİTABANINDA NICKNAME BENZERSİZLİK KONTROLÜ
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("nicknameLower", "==", formattedNickname));
+                const querySnapshot = await getDocs(q);
+
+                let isTakenByOther = false;
+                querySnapshot.forEach((docSnap) => {
+                    if (docSnap.id !== currentUser.uid) {
+                        isTakenByOther = true;
+                    }
+                });
+
+                if (isTakenByOther) {
+                    alert("Bu nickname başka bir kullanıcı tarafından alınmış. Lütfen farklı bir kullanıcı adı seçin!");
+                    return;
+                }
+
                 const userData = {
                     uid: currentUser.uid,
+                    nickname: rawNickname,
+                    nicknameLower: formattedNickname, // Küçük harf aramaları ve benzersizlik kontrolü için
                     displayName: currentUser.displayName,
                     email: currentUser.email,
                     photoURL: currentUser.photoURL,
                     createdAt: serverTimestamp()
                 };
 
-                // Firestore'a kaydet (varsa güncelle)
+                // Firestore'a kaydet
                 await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
 
+                stepNickname.classList.add('hidden');
                 showDashboard(userData);
             } catch (error) {
-                alert("Google girişi başarısız: " + error.message);
+                alert("Nickname kaydedilemedi: " + error.message);
             }
         });
 
         // Dashboard Gösterimi
         function showDashboard(data) {
-            document.getElementById('user-name').innerText = data.displayName || "Kullanıcı";
+            document.getElementById('user-nickname-display').innerText = data.nickname || "Kullanıcı";
+            document.getElementById('info-nickname').innerText = data.nickname || "-";
             document.getElementById('info-email').innerText = data.email || "-";
-            document.getElementById('info-uid').innerText = data.uid || "-";
 
             stepGoogle.classList.add('hidden');
+            stepNickname.classList.add('hidden');
             stepDashboard.classList.remove('hidden');
             openModal();
         }
@@ -151,15 +230,15 @@
             window.location.reload();
         });
 
-        // Hesabı ve Verileri Silme
+        // Hesabı ve Verileri Silme (Nickname Boşa Çıkar)
         document.getElementById('delete-account-btn').addEventListener('click', async () => {
-            if (confirm("Hesabınızı ve verilerinizi silmek istediğinize emin misiniz?")) {
+            if (confirm("Hesabınızı ve verilerinizi silmek istediğinize emin misiniz? Kullanıcı adınız boşa çıkacaktır.")) {
                 const user = auth.currentUser;
                 if (user) {
                     try {
                         await deleteDoc(doc(db, "users", user.uid));
                         await user.delete();
-                        alert("Hesabınız başarıyla silindi.");
+                        alert("Hesabınız ve kullanıcı adınız başarıyla silindi.");
                         window.location.reload();
                     } catch (error) {
                         alert("İşlem başarısız (Yeniden giriş yapmanız gerekebilir): " + error.message);
