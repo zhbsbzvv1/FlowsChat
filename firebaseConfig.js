@@ -4,7 +4,8 @@ import {
     getAuth, 
     signInWithPopup, 
     GoogleAuthProvider, 
-    signOut 
+    signOut,
+    deleteUser 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -20,7 +21,8 @@ import {
     addDoc,
     updateDoc,
     orderBy,
-    onSnapshot 
+    onSnapshot,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -44,6 +46,7 @@ export {
     GoogleAuthProvider, 
     signInWithPopup, 
     signOut, 
+    deleteUser,
     doc, 
     setDoc, 
     getDoc, 
@@ -56,5 +59,6 @@ export {
     addDoc,
     updateDoc,
     orderBy,
-    onSnapshot 
+    onSnapshot,
+    writeBatch
 };
