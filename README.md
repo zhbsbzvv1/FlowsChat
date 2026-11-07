@@ -1,1 +1,2 @@
-https://flowschat.vercel.app/#profiles?emreonur
+https://flowschat.vercel.app/
+https://zhbsbzvv1.github.io/FlowsChat/
