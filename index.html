@@ -3,18 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowsChat</title>
-    <!-- Tailwind CSS -->
+    <title>FlowsChat - Hoş Geldiniz</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-white text-gray-900 min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
 
-    <!-- Üst Menü -->
     <header class="p-6 max-w-6xl mx-auto w-full flex justify-between items-center">
         <h1 class="text-2xl font-black tracking-tighter">FlowsChat<span class="text-indigo-600">.</span></h1>
         <button id="open-auth-modal-btn" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-all">
@@ -22,37 +17,31 @@
         </button>
     </header>
 
-    <!-- Ana Ekran -->
     <main class="flex-1 flex flex-col items-center justify-center text-center px-4">
         <h2 class="text-5xl font-extrabold tracking-tight max-w-2xl leading-tight">
             Anlık, sade ve kesintisiz iletişim.
         </h2>
         <p class="text-gray-500 mt-4 max-w-md text-base">
-            FlowsChat ile arkadaşlarınla hızlıca bağlantı kur. Başlamak için giriş yapman yeterli.
+            FlowsChat topluluğuna katılmak ve forumda sohbet etmek için hemen giriş yapın.
         </p>
         <button id="hero-login-btn" class="mt-8 bg-black text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl">
-            FlowsChat'e Katıl
+            Foruma Git / Giriş Yap
         </button>
     </main>
 
-    <!-- Footer -->
     <footer class="p-6 text-center text-xs text-gray-400">
         &copy; 2026 FlowsChat. Tüm hakları saklıdır.
     </footer>
 
-    <!-- POP-UP MODAL -->
+    <!-- GİRİŞ MODALI -->
     <div id="auth-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
-            
-            <button id="close-modal-btn" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">
-                &times;
-            </button>
+            <button id="close-modal-btn" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
 
-            <!-- AŞAMA 1: Giriş Seçenekleri -->
             <div id="modal-step-google" class="space-y-6 text-center">
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold tracking-tight">Giriş Yap veya Kaydol</h3>
-                    <p class="text-sm text-gray-500">FlowsChat hesabına erişmek için bir yöntem seçin.</p>
+                    <p class="text-sm text-gray-500">Devam etmek için bir yöntem seçin.</p>
                 </div>
                 
                 <div class="space-y-4">
@@ -74,240 +63,130 @@
 
                     <div class="space-y-3">
                         <input type="email" id="email-input" placeholder="E-posta adresiniz" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
-                        <button id="email-login-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
-                            E-posta İle Şifresiz Giriş Linki Gönder
-                        </button>
+                        <button id="email-login-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Şifresiz Giriş Linki Gönder</button>
                     </div>
                 </div>
             </div>
 
-            <!-- AŞAMA 2: Nickname Seçimi -->
             <div id="modal-step-nickname" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
                     <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
-                    <p class="text-sm text-gray-500">Sohbetlerde görünecek adını belirle.</p>
+                    <p class="text-sm text-gray-500">Sohbetlerde ve forumda görünecek adını belirle.</p>
                 </div>
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nickname</label>
-                        <input type="text" id="nickname-input" placeholder="örnek: koddahisi" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
-                    </div>
-                    <button id="save-nickname-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
-                        Devam Et
-                    </button>
+                    <input type="text" id="nickname-input" placeholder="örnek: koddahisi" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    <button id="save-nickname-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Devam Et</button>
                 </div>
             </div>
-
-            <!-- AŞAMA 3: Panel -->
-            <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
-                <div class="space-y-2">
-                    <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-nickname-display"></span>!</h3>
-                    <p class="text-sm text-gray-500">Hesabın aktif ve kullanıma hazır.</p>
-                </div>
-                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left space-y-2 text-xs text-gray-700">
-                    <p><strong>Kullanıcı Adı:</strong> <span id="info-nickname"></span></p>
-                    <p><strong>E-posta:</strong> <span id="info-email"></span></p>
-                </div>
-                <div class="space-y-2">
-                    <button id="logout-btn" class="w-full py-3 px-4 border border-gray-300 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">
-                        Çıkış Yap
-                    </button>
-                    <button id="delete-account-btn" class="w-full py-3 px-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium hover:bg-red-100 transition-all">
-                        Hesabımı Kalıcı Olarak Sil
-                    </button>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Modern Uyarı Modalı -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4">
+            <h4 id="alert-title" class="text-lg font-bold">Bildirim</h4>
+            <p id="alert-message" class="text-sm text-gray-500"></p>
+            <button id="alert-ok-btn" class="w-full py-3 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800">Tamam</button>
+        </div>
+    </div>
+
     <script type="module">
-        import { 
-            auth, 
-            db, 
-            GoogleAuthProvider, 
-            signInWithPopup, 
-            signOut, 
-            sendSignInLinkToEmail,
-            isSignInWithEmailLink,
-            signInWithEmailLink,
-            doc, 
-            setDoc, 
-            getDoc, 
-            deleteDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            serverTimestamp 
-        } from "./firebaseConfig.js";
-        
+        import { auth, db, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let currentUser = null;
-
         const authModal = document.getElementById('auth-modal');
-        const openAuthBtn = document.getElementById('open-auth-modal-btn');
-        const heroLoginBtn = document.getElementById('hero-login-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
+        const customAlert = document.getElementById('custom-alert-modal');
 
-        const stepGoogle = document.getElementById('modal-step-google');
-        const stepNickname = document.getElementById('modal-step-nickname');
-        const stepDashboard = document.getElementById('modal-step-dashboard');
+        function showAlert(title, message) {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-message').innerText = message;
+            customAlert.classList.remove('hidden');
+        }
+        document.getElementById('alert-ok-btn').onclick = () => customAlert.classList.add('hidden');
 
         const openModal = () => authModal.classList.remove('hidden');
         const closeModal = () => authModal.classList.add('hidden');
 
-        openAuthBtn.addEventListener('click', openModal);
-        heroLoginBtn.addEventListener('click', openModal);
-        closeModalBtn.addEventListener('click', closeModal);
+        document.getElementById('open-auth-modal-btn').addEventListener('click', openModal);
+        document.getElementById('hero-login-btn').addEventListener('click', () => {
+            if (auth.currentUser) {
+                window.location.href = 'forum.html';
+            } else {
+                openModal();
+            }
+        });
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
 
         if (isSignInWithEmailLink(auth, window.location.href)) {
             let email = window.localStorage.getItem('emailForSignIn');
-            if (!email) {
-                email = window.prompt('Lütfen doğrulama için e-posta adresinizi girin:');
-            }
+            if (!email) email = prompt('E-posta adresinizi girin:');
             if (email) {
-                signInWithEmailLink(auth, email, window.location.href)
-                    .then((result) => {
-                        window.localStorage.removeItem('emailForSignIn');
-                        currentUser = result.user;
-                        checkUserProfile(currentUser);
-                    })
-                    .catch((error) => {
-                        alert("Giriş bağlantısı geçersiz veya süresi dolmuş.");
-                    });
+                signInWithEmailLink(auth, email, window.location.href).then((res) => {
+                    window.localStorage.removeItem('emailForSignIn');
+                    checkUserAndRedirect(res.user);
+                }).catch(() => showAlert("Hata", "Bağlantı geçersiz veya süresi dolmuş."));
             }
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUser = user;
-                checkUserProfile(currentUser);
+                checkUserAndRedirect(user);
             }
         });
 
-        async function checkUserProfile(user) {
-            const userDocRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userDocRef);
-
-            if (userSnap.exists() && userSnap.data().nickname) {
-                showDashboard(userSnap.data());
+        async function checkUserAndRedirect(user) {
+            currentUser = user;
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists() && snap.data().nickname) {
+                window.location.href = 'forum.html';
             } else {
-                stepGoogle.classList.add('hidden');
-                stepNickname.classList.remove('hidden');
-                openModal();
+                authModal.classList.remove('hidden');
+                document.getElementById('modal-step-google').classList.add('hidden');
+                document.getElementById('modal-step-nickname').classList.remove('hidden');
             }
         }
 
         document.getElementById('google-login-btn').addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
             try {
-                const result = await signInWithPopup(auth, provider);
-                currentUser = result.user;
-                checkUserProfile(currentUser);
-            } catch (error) {
-                alert("Giriş yapılamadı. Lütfen tekrar deneyin.");
-            }
+                const res = await signInWithPopup(auth, new GoogleAuthProvider());
+                checkUserAndRedirect(res.user);
+            } catch { showAlert("Hata", "Google ile giriş başarısız."); }
         });
 
         document.getElementById('email-login-btn').addEventListener('click', async () => {
             const email = document.getElementById('email-input').value.trim();
-            if (!email) {
-                alert("Lütfen geçerli bir e-posta adresi yazın.");
-                return;
-            }
-
-            const actionCodeSettings = {
-                url: window.location.href,
-                handleCodeInApp: true
-            };
-
+            if (!email) return showAlert("Uyarı", "Lütfen bir e-posta girin.");
             try {
-                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                await sendSignInLinkToEmail(auth, email, { url: window.location.href, handleCodeInApp: true });
                 window.localStorage.setItem('emailForSignIn', email);
-                alert("Giriş bağlantısı e-posta adresinize gönderildi!");
-            } catch (error) {
-                alert("E-posta gönderilemedi: " + error.message);
-            }
+                showAlert("Başarılı", "Giriş bağlantısı e-postanıza gönderildi!");
+            } catch (e) { showAlert("Hata", e.message); }
         });
 
         document.getElementById('save-nickname-btn').addEventListener('click', async () => {
-            const rawNickname = document.getElementById('nickname-input').value.trim();
-            const formattedNickname = rawNickname.toLowerCase();
+            const raw = document.getElementById('nickname-input').value.trim();
+            const lower = raw.toLowerCase();
+            if (lower.length < 3) return showAlert("Uyarı", "En az 3 karakter olmalı.");
 
-            if (!formattedNickname || formattedNickname.length < 3) {
-                alert("Lütfen en az 3 karakterli bir kullanıcı adı girin.");
-                return;
-            }
+            const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
+            const snap = await getDocs(q);
+            let taken = false;
+            snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
 
-            try {
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("nicknameLower", "==", formattedNickname));
-                const querySnapshot = await getDocs(q);
+            if (taken) return showAlert("Hata", "Bu kullanıcı adı alınmış.");
 
-                let isTakenByOther = false;
-                querySnapshot.forEach((docSnap) => {
-                    if (docSnap.id !== currentUser.uid) {
-                        isTakenByOther = true;
-                    }
-                });
+            await setDoc(doc(db, "users", currentUser.uid), {
+                uid: currentUser.uid,
+                nickname: raw,
+                nicknameLower: lower,
+                displayName: currentUser.displayName || raw,
+                email: currentUser.email,
+                photoURL: currentUser.photoURL || "",
+                createdAt: serverTimestamp()
+            }, { merge: true });
 
-                if (isTakenByOther) {
-                    alert("Bu kullanıcı adı başka biri tarafından kullanılıyor.");
-                    return;
-                }
-
-                const userData = {
-                    uid: currentUser.uid,
-                    nickname: rawNickname,
-                    nicknameLower: formattedNickname,
-                    displayName: currentUser.displayName || rawNickname,
-                    email: currentUser.email,
-                    photoURL: currentUser.photoURL || "",
-                    createdAt: serverTimestamp()
-                };
-
-                await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
-
-                stepNickname.classList.add('hidden');
-                showDashboard(userData);
-            } catch (error) {
-                alert("Kayıt sırasında bir hata oluştu.");
-            }
-        });
-
-        function showDashboard(data) {
-            document.getElementById('user-nickname-display').innerText = data.nickname || "Kullanıcı";
-            document.getElementById('info-nickname').innerText = data.nickname || "-";
-            document.getElementById('info-email').innerText = data.email || "-";
-
-            stepGoogle.classList.add('hidden');
-            stepNickname.classList.add('hidden');
-            stepDashboard.classList.remove('hidden');
-            openModal();
-        }
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await signOut(auth);
-            window.location.reload();
-        });
-
-        document.getElementById('delete-account-btn').addEventListener('click', async () => {
-            if (confirm("Hesabınızı kalıcı olarak silmek istediğinize emin misiniz?")) {
-                const user = auth.currentUser;
-                if (user) {
-                    try {
-                        await deleteDoc(doc(db, "users", user.uid));
-                        await user.delete();
-                        alert("Hesabınız başarıyla silindi.");
-                        window.location.reload();
-                    } catch (error) {
-                        alert("İşlem başarısız. Lütfen tekrar giriş yapıp deneyin.");
-                    }
-                }
-            }
+            window.location.href = 'forum.html';
         });
     </script>
 </body>
