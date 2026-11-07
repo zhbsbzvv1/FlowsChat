@@ -84,6 +84,7 @@
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let currentUser = null;
+        let isChecking = false;
         const authModal = document.getElementById('auth-modal');
         const customAlert = document.getElementById('custom-alert-modal');
 
@@ -107,19 +108,18 @@
         });
         document.getElementById('close-modal-btn').addEventListener('click', closeModal);
 
-        // Oturum durumunu dinle (Döngü hatası giderildi)
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
+            if (user && !isChecking) {
+                isChecking = true;
                 currentUser = user;
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists() && snap.data().nickname) {
-                    // Kullanıcı kayıtlıysa foruma yönlendir
                     window.location.href = 'forum.html';
                 } else {
-                    // Kullanıcı oturum açmış ama nickname seçmemişse modalı aç
                     authModal.classList.remove('hidden');
                     document.getElementById('modal-step-google').classList.add('hidden');
                     document.getElementById('modal-step-nickname').classList.remove('hidden');
+                    isChecking = false;
                 }
             }
         });
