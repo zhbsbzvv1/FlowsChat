@@ -4,10 +4,7 @@ import {
     getAuth, 
     signInWithPopup, 
     GoogleAuthProvider, 
-    signOut,
-    sendSignInLinkToEmail,
-    isSignInWithEmailLink,
-    signInWithEmailLink 
+    signOut 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -19,7 +16,11 @@ import {
     query,
     where,
     getDocs,
-    serverTimestamp 
+    serverTimestamp,
+    addDoc,
+    updateDoc,
+    orderBy,
+    onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -43,9 +44,6 @@ export {
     GoogleAuthProvider, 
     signInWithPopup, 
     signOut, 
-    sendSignInLinkToEmail,
-    isSignInWithEmailLink,
-    signInWithEmailLink,
     doc, 
     setDoc, 
     getDoc, 
@@ -54,5 +52,9 @@ export {
     query, 
     where, 
     getDocs, 
-    serverTimestamp 
+    serverTimestamp,
+    addDoc,
+    updateDoc,
+    orderBy,
+    onSnapshot 
 };
