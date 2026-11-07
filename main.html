@@ -107,7 +107,6 @@
                     <img id="chat-peer-avatar" src="" class="w-10 h-10 rounded-full object-cover bg-gray-200">
                     <div>
                         <h4 id="chat-peer-name" class="text-sm font-bold">Kullanıcı</h4>
-                        <span class="text-xs text-gray-400">Çevrimiçi</span>
                     </div>
                 </div>
                 <button id="close-chat-modal" class="text-gray-400 hover:text-black text-xl font-bold">&times;</button>
@@ -335,7 +334,6 @@
             if (hash.startsWith('#profiles&')) {
                 const targetUid = hash.replace('#profiles&', '');
                 
-                // ESKİ PROFİLİN GÖZÜKMEMESİ İÇİN ANINDA ALANLARI TEMİZLE (BOŞALT)
                 document.getElementById('profile-display-name').innerText = "";
                 document.getElementById('profile-nickname').innerText = "";
                 document.getElementById('profile-avatar').src = defaultAvatar;
