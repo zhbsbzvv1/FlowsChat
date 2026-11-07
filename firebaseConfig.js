@@ -1,9 +1,36 @@
-export const firebaseConfig = {
-  apiKey: "AIzaSyCahsCXVjAJ-Qx-tHcxDX9xiCdqd4GOv-4",
-  authDomain: "zhbsbzvv-6f910.firebaseapp.com",
-  projectId: "zhbsbzvv-6f910",
-  storageBucket: "zhbsbzvv-6f910.firebasestorage.app",
-  messagingSenderId: "1050863909513",
-  appId: "1:1050863909513:web:5c149cedd80a77758c6458",
-  measurementId: "G-7ZHJ34D9X4"
+// Firebase SDK Entegrasyonu (Modular v10)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { 
+    getAuth, 
+    signInWithPopup, 
+    GoogleAuthProvider, 
+    signOut 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    deleteDoc,
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// FlowsChat Firebase Yapılandırması (Hassas Bilgiler)
+const firebaseConfig = {
+    apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
+    authDomain: "flowschat-f611b.firebaseapp.com",
+    projectId: "flowschat-f611b",
+    storageBucket: "flowschat-f611b.firebasestorage.app",
+    messagingSenderId: "922119996344",
+    appId: "1:922119996344:web:c62d8a09bc0d503154454d",
+    measurementId: "G-BVEB5N0F2X"
 };
+
+// Servisleri Başlat
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+export { auth, db, GoogleAuthProvider, signInWithPopup, signOut, doc, setDoc, getDoc, deleteDoc, serverTimestamp };
