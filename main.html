@@ -249,26 +249,58 @@
             window.location.href = 'index.html';
         });
 
+        // HESAP SİLME KESİN ÇÖZÜMÜ: Herkesin takipçi ve takip edilen listesinden temizle
         document.getElementById('modal-delete-account-btn').addEventListener('click', () => {
             document.getElementById('settings-modal').classList.add('hidden');
-            showAlert("Hesabı Sil", "Hesabını ve seninle ilgili tüm sohbetleri/mesajları kalıcı olarak silmek istediğine emin misin?", async () => {
+            showAlert("Hesabı Sil", "Hesabını, mesajlarını ve diğer kullanıcılardaki takipçi/takip edilen bağlantılarını kalıcı olarak silmek istediğine emin misin?", async () => {
                 try {
                     const uid = currentUser.uid;
-                    const chatsSnap = await getDocs(collection(db, "chats"));
                     const batch = writeBatch(db);
 
+                    // 1. Tüm sohbetleri temizle
+                    const chatsSnap = await getDocs(collection(db, "chats"));
                     chatsSnap.forEach(chatDoc => {
                         if (chatDoc.id.includes(uid)) {
                             batch.delete(chatDoc.ref);
                         }
                     });
 
+                    // 2. Diğer tüm kullanıcıların followers / following listelerinden bu UID'yi çıkar
+                    const allUsersSnap = await getDocs(collection(db, "users"));
+                    allUsersSnap.forEach(userDoc => {
+                        if (userDoc.id !== uid) {
+                            const uData = userDoc.data();
+                            let updatedFollowers = uData.followers || [];
+                            let updatedFollowing = uData.following || [];
+                            
+                            let changed = false;
+                            if (updatedFollowers.includes(uid)) {
+                                updatedFollowers = updatedFollowers.filter(id => id !== uid);
+                                changed = true;
+                            }
+                            if (updatedFollowing.includes(uid)) {
+                                updatedFollowing = updatedFollowing.filter(id => id !== uid);
+                                changed = true;
+                            }
+
+                            if (changed) {
+                                batch.update(userDoc.ref, {
+                                    followers: updatedFollowers,
+                                    following: updatedFollowing
+                                });
+                            }
+                        }
+                    });
+
+                    // 3. Kendi kullanıcı belgesini sil
                     batch.delete(doc(db, "users", uid));
+
                     await batch.commit();
                     await deleteUser(currentUser);
                     window.location.href = 'index.html';
                 } catch (err) {
-                    showAlert("Hata", "Hesap silinirken hata oluştu.");
+                    console.error("Hesap silme hatası:", err);
+                    showAlert("Hata", "Hesap silinirken hata oluştu: " + err.message);
                 }
             }, true);
         });
@@ -442,7 +474,6 @@
                     ? "px-6 py-2 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full transition-all hover:bg-gray-200"
                     : "px-6 py-2 bg-black text-white text-sm font-semibold rounded-full transition-all hover:bg-gray-800";
 
-                // TAKİP ET / TAKİPTEN ÇIK - Garanti ve Hızlı İşlem
                 followBtn.onclick = async () => {
                     const myRef = doc(db, "users", currentUser.uid);
                     const targetRef = doc(db, "users", targetUid);
@@ -576,7 +607,6 @@
             if (messagesUnsubscribe) messagesUnsubscribe();
         });
 
-        // MESAJ GÖNDERME - Kesin Garantili Tetikleyici
         document.getElementById('chat-send-btn').onclick = async () => {
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
