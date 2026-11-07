@@ -22,7 +22,7 @@
         </button>
     </header>
 
-    <!-- Ana Ekran (Bembeyaz Karşılama) -->
+    <!-- Ana Ekran -->
     <main class="flex-1 flex flex-col items-center justify-center text-center px-4">
         <h2 class="text-5xl font-extrabold tracking-tight max-w-2xl leading-tight">
             Anlık, sade ve kesintisiz iletişim.
@@ -40,33 +40,48 @@
         &copy; 2026 FlowsChat. Tüm hakları saklıdır.
     </footer>
 
-    <!-- POP-UP MODAL (Giriş / Nickname / Panel) -->
+    <!-- POP-UP MODAL -->
     <div id="auth-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
             
-            <!-- Kapatma Butonu -->
             <button id="close-modal-btn" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">
                 &times;
             </button>
 
-            <!-- AŞAMA 1: Google ile Giriş -->
+            <!-- AŞAMA 1: Giriş Seçenekleri (Google & E-posta Doğrulama Linki) -->
             <div id="modal-step-google" class="space-y-6 text-center">
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold tracking-tight">Giriş Yap veya Kaydol</h3>
-                    <p class="text-sm text-gray-500">FlowsChat hesabına erişmek için devam et.</p>
+                    <p class="text-sm text-gray-500">FlowsChat hesabına erişmek için bir yöntem seçin.</p>
                 </div>
-                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-300 rounded-2xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    Google ile Devam Et
-                </button>
+                
+                <div class="space-y-4">
+                    <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-300 rounded-2xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        Google ile Devam Et
+                    </button>
+
+                    <div class="flex items-center my-4">
+                        <div class="flex-grow border-t border-gray-200"></div>
+                        <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">veya</span>
+                        <div class="flex-grow border-t border-gray-200"></div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <input type="email" id="email-input" placeholder="E-posta adresiniz" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                        <button id="email-login-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
+                            E-posta İle Doğrulama Linki Gönder
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- AŞAMA 2: Benzersiz Nickname (Kullanıcı Adı) Belirleme -->
+            <!-- AŞAMA 2: Nickname Seçimi -->
             <div id="modal-step-nickname" class="hidden space-y-6">
                 <div class="space-y-2 text-center">
                     <h3 class="text-2xl font-bold tracking-tight">Kullanıcı Adı Seç</h3>
@@ -83,7 +98,7 @@
                 </div>
             </div>
 
-            <!-- AŞAMA 3: Giriş Başarılı / Kullanıcı Paneli -->
+            <!-- AŞAMA 3: Panel -->
             <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-nickname-display"></span>!</h3>
@@ -106,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Ana Mantık -->
+    <!-- Script Yapısı -->
     <script type="module">
         import { 
             auth, 
@@ -114,6 +129,9 @@
             GoogleAuthProvider, 
             signInWithPopup, 
             signOut, 
+            sendSignInLinkToEmail,
+            isSignInWithEmailLink,
+            signInWithEmailLink,
             doc, 
             setDoc, 
             getDoc, 
@@ -145,45 +163,81 @@
         heroLoginBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
 
-        // Sayfa Yenilendiğinde Oturum Kontrolü
+        // 1. E-POSTA İLE BAĞLANTI İLKESİ (Linkle Dönüş Kontrolü)
+        if (isSignInWithEmailLink(auth, window.location.href)) {
+            let email = window.localStorage.getItem('emailForSignIn');
+            if (!email) {
+                email = window.prompt('Lütfen doğrulama için e-posta adresinizi girin:');
+            }
+            if (email) {
+                signInWithEmailLink(auth, email, window.location.href)
+                    .then((result) => {
+                        window.localStorage.removeItem('emailForSignIn');
+                        currentUser = result.user;
+                        checkUserProfile(currentUser);
+                    })
+                    .catch((error) => {
+                        alert("Giriş bağlantısı geçersiz veya süresi dolmuş.");
+                    });
+            }
+        }
+
+        // Oturum Durumunu Dinle
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                const userDocRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userDocRef);
-
-                if (userSnap.exists() && userSnap.data().nickname) {
-                    showDashboard(userSnap.data());
-                } else {
-                    stepGoogle.classList.add('hidden');
-                    stepNickname.classList.remove('hidden');
-                    openModal();
-                }
+                checkUserProfile(currentUser);
             }
         });
 
-        // Google ile Giriş
+        async function checkUserProfile(user) {
+            const userDocRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userDocRef);
+
+            if (userSnap.exists() && userSnap.data().nickname) {
+                showDashboard(userSnap.data());
+            } else {
+                stepGoogle.classList.add('hidden');
+                stepNickname.classList.remove('hidden');
+                openModal();
+            }
+        }
+
+        // Google Girişi
         document.getElementById('google-login-btn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
                 const result = await signInWithPopup(auth, provider);
                 currentUser = result.user;
-
-                const userDocRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userDocRef);
-
-                if (userSnap.exists() && userSnap.data().nickname) {
-                    showDashboard(userSnap.data());
-                } else {
-                    stepGoogle.classList.add('hidden');
-                    stepNickname.classList.remove('hidden');
-                }
+                checkUserProfile(currentUser);
             } catch (error) {
                 alert("Giriş yapılamadı. Lütfen tekrar deneyin.");
             }
         });
 
-        // Nickname Kaydetme
+        // E-posta Linki Gönderme
+        document.getElementById('email-login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('email-input').value.trim();
+            if (!email) {
+                alert("Lütfen geçerli bir e-posta adresi yazın.");
+                return;
+            }
+
+            const actionCodeSettings = {
+                url: window.location.href,
+                handleCodeInApp: true
+            };
+
+            try {
+                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                window.localStorage.setItem('emailForSignIn', email);
+                alert("Giriş bağlantısı e-posta adresinize gönderildi! Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin.");
+            } catch (error) {
+                alert("E-posta gönderilemedi: " + error.message);
+            }
+        });
+
+        // Nickname Kaydı
         document.getElementById('save-nickname-btn').addEventListener('click', async () => {
             const rawNickname = document.getElementById('nickname-input').value.trim();
             const formattedNickname = rawNickname.toLowerCase();
@@ -214,9 +268,9 @@
                     uid: currentUser.uid,
                     nickname: rawNickname,
                     nicknameLower: formattedNickname,
-                    displayName: currentUser.displayName,
+                    displayName: currentUser.displayName || rawNickname,
                     email: currentUser.email,
-                    photoURL: currentUser.photoURL,
+                    photoURL: currentUser.photoURL || "",
                     createdAt: serverTimestamp()
                 };
 
@@ -229,7 +283,6 @@
             }
         });
 
-        // Panel Gösterimi
         function showDashboard(data) {
             document.getElementById('user-nickname-display').innerText = data.nickname || "Kullanıcı";
             document.getElementById('info-nickname').innerText = data.nickname || "-";
@@ -241,13 +294,11 @@
             openModal();
         }
 
-        // Çıkış Yap
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await signOut(auth);
             window.location.reload();
         });
 
-        // Hesap Silme
         document.getElementById('delete-account-btn').addEventListener('click', async () => {
             if (confirm("Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz?")) {
                 const user = auth.currentUser;
