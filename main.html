@@ -180,7 +180,7 @@
 
     <!-- Firebase SDK ve Script -->
     <script type="module">
-        import { auth, db, signOut, deleteUser, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, onSnapshot, writeBatch } from "./firebaseConfig.js";
+        import { auth, db, signOut, deleteUser, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, onSnapshot, writeBatch, addDoc, updateDoc } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let currentUser = null;
@@ -592,7 +592,8 @@
                 });
                 input.value = '';
             } catch (err) {
-                showAlert("Hata", "Mesaj gönderilemedi.");
+                console.error("Mesaj gönderme hatası:", err);
+                showAlert("Hata", "Mesaj gönderilemedi: " + err.message);
             }
         });
 
