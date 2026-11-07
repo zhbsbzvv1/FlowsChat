@@ -124,6 +124,8 @@
             getDocs, 
             serverTimestamp 
         } from "./firebaseConfig.js";
+        
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let currentUser = null;
 
@@ -142,6 +144,25 @@
         openAuthBtn.addEventListener('click', openModal);
         heroLoginBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
+
+        // SAYFA YENİLENDİĞİNDE OTURUMU KONTROL ET
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                // Firestore'dan kullanıcının verisini çek
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (userSnap.exists() && userSnap.data().nickname) {
+                    showDashboard(userSnap.data());
+                } else {
+                    // Oturum var ama nickname seçilmemişse nickname adımını aç
+                    stepGoogle.classList.add('hidden');
+                    stepNickname.classList.remove('hidden');
+                    openModal();
+                }
+            }
+        });
 
         // 1. Google ile Giriş ve Kayıt Kontrolü
         document.getElementById('google-login-btn').addEventListener('click', async () => {
@@ -175,7 +196,6 @@
             }
 
             try {
-                // VERİTABANINDA NICKNAME BENZERSİZLİK KONTROLÜ
                 const usersRef = collection(db, "users");
                 const q = query(usersRef, where("nicknameLower", "==", formattedNickname));
                 const querySnapshot = await getDocs(q);
@@ -195,14 +215,13 @@
                 const userData = {
                     uid: currentUser.uid,
                     nickname: rawNickname,
-                    nicknameLower: formattedNickname, // Küçük harf aramaları ve benzersizlik kontrolü için
+                    nicknameLower: formattedNickname,
                     displayName: currentUser.displayName,
                     email: currentUser.email,
                     photoURL: currentUser.photoURL,
                     createdAt: serverTimestamp()
                 };
 
-                // Firestore'a kaydet
                 await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
 
                 stepNickname.classList.add('hidden');
@@ -230,7 +249,7 @@
             window.location.reload();
         });
 
-        // Hesabı ve Verileri Silme (Nickname Boşa Çıkar)
+        // Hesabı ve Verileri Silme
         document.getElementById('delete-account-btn').addEventListener('click', async () => {
             if (confirm("Hesabınızı ve verilerinizi silmek istediğinize emin misiniz? Kullanıcı adınız boşa çıkacaktır.")) {
                 const user = auth.currentUser;
