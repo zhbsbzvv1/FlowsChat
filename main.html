@@ -340,7 +340,7 @@
             } else {
                 viewProfile.classList.add('hidden');
                 viewFeed.classList.remove('hidden');
-                document.getElementById('dropdown-profile-link').href = `#profiles&${currentUser.uid}`;
+                document.getElementById('dropdown-profile-link', currentUser.uid);
                 loadNewUsers();
             }
         }
@@ -441,32 +441,37 @@
             document.getElementById('profile-nickname').innerText = data.nickname;
             document.getElementById('profile-avatar').src = data.photoURL || defaultAvatar;
 
-            let followers = data.followers || [];
-            let following = data.following || [];
+            let rawFollowers = data.followers || [];
+            let rawFollowing = data.following || [];
 
-            // HAYALET TEMİZLİK KONTROLÜ: Listede olup veritabanında silinmiş kullanıcı ID'lerini temizle
+            // GÜÇLÜ SENKRONİZASYON VE MÜKERRER / HAYALET TEMİZLİK KONTROLÜ
             let validFollowers = [];
-            for (let fUid of followers) {
-                const fSnap = await getDoc(doc(db, "users", fUid));
-                if (fSnap.exists()) validFollowers.push(fUid);
-            }
-            if (validFollowers.length !== followers.length) {
-                await updateDoc(doc(db, "users", targetUid), { followers: validFollowers });
-                followers = validFollowers;
+            for (let fUid of rawFollowers) {
+                // Sadece benzersiz ve veritabanında gerçekten var olanları al
+                if (!validFollowers.includes(fUid)) {
+                    const fSnap = await getDoc(doc(db, "users", fUid));
+                    if (fSnap.exists()) validFollowers.push(fUid);
+                }
             }
 
             let validFollowing = [];
-            for (let fUid of following) {
-                const fSnap = await getDoc(doc(db, "users", fUid));
-                if (fSnap.exists()) validFollowing.push(fUid);
-            }
-            if (validFollowing.length !== following.length) {
-                await updateDoc(doc(db, "users", targetUid), { following: validFollowing });
-                following = validFollowing;
+            for (let fUid of rawFollowing) {
+                if (!validFollowing.includes(fUid)) {
+                    const fSnap = await getDoc(doc(db, "users", fUid));
+                    if (fSnap.exists()) validFollowing.push(fUid);
+                }
             }
 
-            document.getElementById('followers-count').innerText = followers.length;
-            document.getElementById('following-count').innerText = following.length;
+            // Eğer listede silinmiş, hayalet veya mükerrer ID'ler varsa veritabanını anında güncelle
+            if (validFollowers.length !== rawFollowers.length || validFollowing.length !== rawFollowing.length) {
+                await updateDoc(doc(db, "users", targetUid), { 
+                    followers: validFollowers,
+                    following: validFollowing
+                });
+            }
+
+            document.getElementById('followers-count').innerText = validFollowers.length;
+            document.getElementById('following-count').innerText = validFollowing.length;
 
             const editBtn = document.getElementById('edit-profile-btn');
             const followBtn = document.getElementById('follow-action-btn');
@@ -486,7 +491,7 @@
                 followBtn.classList.remove('hidden');
                 messageBtn.classList.remove('hidden');
 
-                const isFollowing = followers.includes(currentUser.uid);
+                const isFollowing = validFollowers.includes(currentUser.uid);
                 followBtn.innerText = isFollowing ? "Takiptesin" : "Takip Et";
                 followBtn.className = isFollowing 
                     ? "px-6 py-2 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full transition-all hover:bg-gray-200"
@@ -502,8 +507,8 @@
                     let myData = mySnap.data();
                     let targetData = targetSnap.data();
 
-                    let myFollowing = myData.following || [];
-                    let targetFollowers = targetData.followers || [];
+                    let myFollowing = [...new Set(myData.following || [])];
+                    let targetFollowers = [...new Set(targetData.followers || [])];
 
                     if (targetFollowers.includes(currentUser.uid)) {
                         targetFollowers = targetFollowers.filter(id => id !== currentUser.uid);
@@ -522,8 +527,8 @@
                 messageBtn.onclick = () => openChatModal(targetUid, data);
             }
 
-            document.getElementById('open-followers-list-btn').onclick = () => showUsersList("Takipçiler", followers);
-            document.getElementById('open-following-list-btn').onclick = () => showUsersList("Takip Edilenler", following);
+            document.getElementById('open-followers-list-btn').onclick = () => showUsersList("Takipçiler", validFollowers);
+            document.getElementById('open-following-list-btn').onclick = () => showUsersList("Takip Edilenler", validFollowing);
         }
 
         async function showUsersList(title, uids) {
