@@ -1,273 +1,175 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowsChat</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        RecaptchaVerifier, 
+        signInWithPhoneNumber, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+        getFirestore, 
+        doc, 
+        setDoc, 
+        getDoc, 
+        collection, 
+        query, 
+        where, 
+        getDocs, 
+        serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- Üst Menü -->
-    <header class="p-6 max-w-6xl mx-auto w-full flex justify-between items-center">
-        <h1 class="text-2xl font-black tracking-tighter">FlowsChat<span class="text-indigo-600">.</span></h1>
-        <button id="open-auth-modal-btn" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-all">
-            Giriş Yap
-        </button>
-    </header>
+    // FlowsChat Firebase Yapılandırması
+    const firebaseConfig = {
+        apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
+        authDomain: "flowschat-f611b.firebaseapp.com",
+        projectId: "flowschat-f611b",
+        storageBucket: "flowschat-f611b.firebasestorage.app",
+        messagingSenderId: "922119996344",
+        appId: "1:922119996344:web:c62d8a09bc0d503154454d",
+        measurementId: "G-BVEB5N0F2X"
+    };
 
-    <!-- Ana Ekran / Bembeyaz Karşılama -->
-    <main class="flex-1 flex flex-col items-center justify-center text-center px-4">
-        <h2 class="text-5xl font-extrabold tracking-tight max-w-2xl leading-tight">
-            Anlık, sade ve kesintisiz iletişim.
-        </h2>
-        <p class="text-gray-500 mt-4 max-w-md text-base">
-            FlowsChat ile arkadaşlarınla hızlıca bağlantı kur. Başlamak için giriş yapman yeterli.
-        </p>
-        <button id="hero-login-btn" class="mt-8 bg-black text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl">
-            FlowsChat'e Katıl
-        </button>
-    </main>
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    <!-- Footer -->
-    <footer class="p-6 text-center text-xs text-gray-400">
-        &copy; 2026 FlowsChat. Tüm hakları saklıdır.
-    </footer>
+    let googleUser = null;
+    let confirmationResultGlobal = null;
 
-    <!-- POP-UP MODAL (Giriş / Kayıt) -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border border-gray-100 relative space-y-6">
-            
-            <!-- Kapatma Butonu -->
-            <button id="close-modal-btn" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">
-                &times;
-            </button>
+    // Modal Yönetimi
+    const authModal = document.getElementById('auth-modal');
+    const openAuthBtn = document.getElementById('open-auth-modal-btn');
+    const heroLoginBtn = document.getElementById('hero-login-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
 
-            <!-- AŞAMA 1: Google ile Giriş -->
-            <div id="modal-step-google" class="space-y-6 text-center">
-                <div class="space-y-2">
-                    <h3 class="text-2xl font-bold tracking-tight">Giriş Yap veya Kaydol</h3>
-                    <p class="text-sm text-gray-500">FlowsChat hesabına erişmek için devam et.</p>
-                </div>
-                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-300 rounded-2xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    Google ile Devam Et
-                </button>
-            </div>
+    const stepGoogle = document.getElementById('modal-step-google');
+    const stepPhone = document.getElementById('modal-step-phone');
+    const stepOtp = document.getElementById('modal-step-otp');
+    const stepDashboard = document.getElementById('modal-step-dashboard');
 
-            <!-- AŞAMA 2: Telefon Numarası -->
-            <div id="modal-step-phone" class="hidden space-y-6">
-                <div class="space-y-2 text-center">
-                    <h3 class="text-2xl font-bold tracking-tight">Telefon Numarası</h3>
-                    <p class="text-sm text-gray-500">Güvenliğiniz için telefonunuzu doğrulayın.</p>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Telefon (+90...)</label>
-                        <input type="tel" id="phone-number" placeholder="+905554443322" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
-                    </div>
-                    <button id="send-otp-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
-                        SMS Doğrulama Kodu Gönder
-                    </button>
-                </div>
-                <div id="recaptcha-container"></div>
-            </div>
+    const openModal = () => authModal.classList.remove('hidden');
+    const closeModal = () => authModal.classList.add('hidden');
 
-            <!-- AŞAMA 3: SMS Kodu Doğrulama -->
-            <div id="modal-step-otp" class="hidden space-y-6">
-                <div class="space-y-2 text-center">
-                    <h3 class="text-2xl font-bold tracking-tight">SMS Kodunu Girin</h3>
-                    <p class="text-sm text-gray-500">Telefonunuza gelen 6 haneli kodu yazın.</p>
-                </div>
-                <div class="space-y-4">
-                    <input type="text" id="otp-code" placeholder="123456" maxlength="6" class="w-full text-center tracking-widest text-2xl font-semibold px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all">
-                    <button id="verify-otp-btn" class="w-full py-3.5 px-4 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">
-                        Doğrula ve Girişi Tamamla
-                    </button>
-                </div>
-            </div>
+    openAuthBtn.addEventListener('click', openModal);
+    heroLoginBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
 
-            <!-- Giriş Başarılı / Kullanıcı Paneli -->
-            <div id="modal-step-dashboard" class="hidden space-y-6 text-center">
-                <div class="space-y-2">
-                    <h3 class="text-2xl font-bold tracking-tight">Hoş geldin, <span id="user-name"></span>!</h3>
-                    <p class="text-sm text-gray-500">Hesabınız Firestore veritabanında aktif.</p>
-                </div>
-                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left space-y-2 text-xs text-gray-700">
-                    <p><strong>E-posta:</strong> <span id="info-email"></span></p>
-                    <p><strong>Telefon:</strong> <span id="info-phone"></span></p>
-                </div>
-                <button id="logout-btn" class="w-full py-3 px-4 border border-gray-300 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">
-                    Oturumu Kapat
-                </button>
-            </div>
+    // 1. Google Girişi
+    document.getElementById('google-login-btn').addEventListener('click', async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            googleUser = result.user;
 
-        </div>
-    </div>
+            // Veritabanında önceden var olan profil kontrolü
+            const userDocRef = doc(db, "users", googleUser.uid);
+            const userSnap = await getDoc(userDocRef);
 
-    <!-- Firebase Script Yapısı -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { 
-            getAuth, 
-            signInWithPopup, 
-            GoogleAuthProvider, 
-            RecaptchaVerifier, 
-            signInWithPhoneNumber, 
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            getDoc, 
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+            if (userSnap.exists() && userSnap.data().phoneNumber) {
+                showDashboard(userSnap.data());
+            } else {
+                stepGoogle.classList.add('hidden');
+                stepPhone.classList.remove('hidden');
+                setupRecaptcha();
+            }
+        } catch (error) {
+            alert("Google girişi başarısız: " + error.message);
+        }
+    });
 
-        // Paylaştığın Firebase Yapılandırması
-        const firebaseConfig = {
-            apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
-            authDomain: "flowschat-f611b.firebaseapp.com",
-            projectId: "flowschat-f611b",
-            storageBucket: "flowschat-f611b.firebasestorage.app",
-            messagingSenderId: "922119996344",
-            appId: "1:922119996344:web:c62d8a09bc0d503154454d",
-            measurementId: "G-BVEB5N0F2X"
-        };
+    // reCAPTCHA
+    function setupRecaptcha() {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {}
+            });
+        }
+    }
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    // 2. SMS Gönderimi (Telefon Numarası Benzersizlik Kontrolü İle)
+    document.getElementById('send-otp-btn').addEventListener('click', async () => {
+        const phoneNumber = document.getElementById('phone-number').value.trim();
+        if (!phoneNumber) {
+            alert("Lütfen telefon numaranızı girin (+90...)");
+            return;
+        }
 
-        let googleUser = null;
-        let confirmationResultGlobal = null;
+        try {
+            // VERİTABANINDA BU NUMARA DAHA ÖNCE KULLANILMIŞ MI KONTROL ET
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("phoneNumber", "==", phoneNumber));
+            const querySnapshot = await getDocs(q);
 
-        // Modal Yönetimi
-        const authModal = document.getElementById('auth-modal');
-        const openAuthBtn = document.getElementById('open-auth-modal-btn');
-        const heroLoginBtn = document.getElementById('hero-login-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-
-        const stepGoogle = document.getElementById('modal-step-google');
-        const stepPhone = document.getElementById('modal-step-phone');
-        const stepOtp = document.getElementById('modal-step-otp');
-        const stepDashboard = document.getElementById('modal-step-dashboard');
-
-        const openModal = () => authModal.classList.remove('hidden');
-        const closeModal = () => authModal.classList.add('hidden');
-
-        openAuthBtn.addEventListener('click', openModal);
-        heroLoginBtn.addEventListener('click', openModal);
-        closeModalBtn.addEventListener('click', closeModal);
-
-        // 1. Google Girişi
-        document.getElementById('google-login-btn').addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
-            try {
-                const result = await signInWithPopup(auth, provider);
-                googleUser = result.user;
-
-                // Veritabanında önceden var olan telefon kontrolü
-                const userDocRef = doc(db, "users", googleUser.uid);
-                const userSnap = await getDoc(userDocRef);
-
-                if (userSnap.exists() && userSnap.data().phoneNumber) {
-                    showDashboard(userSnap.data());
-                } else {
-                    stepGoogle.classList.add('hidden');
-                    stepPhone.classList.remove('hidden');
-                    setupRecaptcha();
+            // Başka bir hesap bu numarayı kaydetmişse engelle
+            let isUsedByAnother = false;
+            querySnapshot.forEach((docSnap) => {
+                if (docSnap.id !== googleUser.uid) {
+                    isUsedByAnother = true;
                 }
-            } catch (error) {
-                alert("Google girişi başarısız: " + error.message);
-            }
-        });
+            });
 
-        // reCAPTCHA
-        function setupRecaptcha() {
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    'size': 'invisible',
-                    'callback': () => {}
-                });
-            }
-        }
-
-        // 2. SMS Gönderimi
-        document.getElementById('send-otp-btn').addEventListener('click', async () => {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-            if (!phoneNumber) {
-                alert("Lütfen telefon numaranızı girin (+90...)");
+            if (isUsedByAnother) {
+                alert("Bu telefon numarası başka bir FlowsChat hesabına zaten kayıtlı!");
                 return;
             }
 
-            try {
-                confirmationResultGlobal = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-                stepPhone.classList.add('hidden');
-                stepOtp.classList.remove('hidden');
-            } catch (error) {
-                alert("SMS gönderim hatası: " + error.message);
-            }
-        });
-
-        // 3. Kod Doğrulama & Firestore Kaydı
-        document.getElementById('verify-otp-btn').addEventListener('click', async () => {
-            const code = document.getElementById('otp-code').value.trim();
-            if (!code || code.length < 6) {
-                alert("Lütfen 6 haneli kodu eksiksiz yazın.");
-                return;
-            }
-
-            try {
-                const result = await confirmationResultGlobal.confirm(code);
-                const phoneUser = result.user;
-
-                const userData = {
-                    uid: googleUser.uid,
-                    displayName: googleUser.displayName,
-                    email: googleUser.email,
-                    photoURL: googleUser.photoURL,
-                    phoneNumber: phoneUser.phoneNumber,
-                    createdAt: serverTimestamp()
-                };
-
-                await setDoc(doc(db, "users", googleUser.uid), userData, { merge: true });
-
-                stepOtp.classList.add('hidden');
-                showDashboard(userData);
-            } catch (error) {
-                alert("Doğrulama kodu geçersiz: " + error.message);
-            }
-        });
-
-        function showDashboard(data) {
-            document.getElementById('user-name').innerText = data.displayName || "Kullanıcı";
-            document.getElementById('info-email').innerText = data.email || "-";
-            document.getElementById('info-phone').innerText = data.phoneNumber || "-";
-
-            stepGoogle.classList.add('hidden');
+            // Numara boşta ise SMS gönder
+            confirmationResultGlobal = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
             stepPhone.classList.add('hidden');
-            stepOtp.classList.add('hidden');
-            stepDashboard.classList.remove('hidden');
+            stepOtp.classList.remove('hidden');
+        } catch (error) {
+            alert("İşlem hatası: " + error.message);
+        }
+    });
+
+    // 3. Kod Doğrulama & Firestore Kaydı
+    document.getElementById('verify-otp-btn').addEventListener('click', async () => {
+        const code = document.getElementById('otp-code').value.trim();
+        if (!code || code.length < 6) {
+            alert("Lütfen 6 haneli kodu eksiksiz yazın.");
+            return;
         }
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await signOut(auth);
-            window.location.reload();
-        });
-    </script>
-</body>
-</html>
+        try {
+            const result = await confirmationResultGlobal.confirm(code);
+            const phoneUser = result.user;
+
+            const userData = {
+                uid: googleUser.uid,
+                displayName: googleUser.displayName,
+                email: googleUser.email,
+                photoURL: googleUser.photoURL,
+                phoneNumber: phoneUser.phoneNumber,
+                createdAt: serverTimestamp()
+            };
+
+            await setDoc(doc(db, "users", googleUser.uid), userData, { merge: true });
+
+            stepOtp.classList.add('hidden');
+            showDashboard(userData);
+        } catch (error) {
+            alert("Doğrulama kodu geçersiz: " + error.message);
+        }
+    });
+
+    function showDashboard(data) {
+        document.getElementById('user-name').innerText = data.displayName || "Kullanıcı";
+        document.getElementById('info-email').innerText = data.email || "-";
+        document.getElementById('info-phone').innerText = data.phoneNumber || "-";
+
+        stepGoogle.classList.add('hidden');
+        stepPhone.classList.add('hidden');
+        stepOtp.classList.add('hidden');
+        stepDashboard.classList.remove('hidden');
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.reload();
+    });
+</script>
