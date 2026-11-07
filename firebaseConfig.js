@@ -5,7 +5,10 @@ import {
     getAuth, 
     signInWithPopup, 
     GoogleAuthProvider, 
-    signOut 
+    signOut,
+    sendSignInLinkToEmail,
+    isSignInWithEmailLink,
+    signInWithEmailLink 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -20,7 +23,6 @@ import {
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// FlowsChat Firebase Yapılandırması
 const firebaseConfig = {
     apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
     authDomain: "flowschat-f611b.firebaseapp.com",
@@ -31,7 +33,6 @@ const firebaseConfig = {
     measurementId: "G-BVEB5N0F2X"
 };
 
-// Servisleri Başlat
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
@@ -43,6 +44,9 @@ export {
     GoogleAuthProvider, 
     signInWithPopup, 
     signOut, 
+    sendSignInLinkToEmail,
+    isSignInWithEmailLink,
+    signInWithEmailLink,
     doc, 
     setDoc, 
     getDoc, 
