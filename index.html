@@ -1,1 +1,150 @@
 
+<!-- Firebase SDK Entegrasyonu (Modular v10) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        RecaptchaVerifier, 
+        signInWithPhoneNumber, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+        getFirestore, 
+        doc, 
+        setDoc, 
+        getDoc, 
+        serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // FlowsChat Firebase Yapılandırması
+    const firebaseConfig = {
+        apiKey: "AIzaSyClkgVqAKSy-ccbZNiHLkVU7EfJx66h1ew",
+        authDomain: "flowschat-f611b.firebaseapp.com",
+        projectId: "flowschat-f611b",
+        storageBucket: "flowschat-f611b.firebasestorage.app",
+        messagingSenderId: "922119996344",
+        appId: "1:922119996344:web:c62d8a09bc0d503154454d",
+        measurementId: "G-BVEB5N0F2X"
+    };
+
+    // Servisleri Başlat
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let googleUser = null;
+    let confirmationResultGlobal = null;
+
+    // UI Elementleri
+    const googleAuthSection = document.getElementById('google-auth-section');
+    const phoneInputSection = document.getElementById('phone-input-section');
+    const otpVerifySection = document.getElementById('otp-verify-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+
+    // 1. Google Giriş İşlemi
+    document.getElementById('google-login-btn').addEventListener('click', async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            googleUser = result.user;
+            
+            // Kullanıcı profilinin daha önce oluşturulup oluşturulmadığını kontrol et
+            const userDocRef = doc(db, "users", googleUser.uid);
+            const userSnap = await getDoc(userDocRef);
+
+            if (userSnap.exists() && userSnap.data().phoneNumber) {
+                showDashboard(userSnap.data());
+            } else {
+                googleAuthSection.classList.add('hidden');
+                phoneInputSection.classList.remove('hidden');
+                setupRecaptcha();
+            }
+        } catch (error) {
+            console.error("Google giriş hatası:", error);
+            alert("Giriş yapılırken bir hata oluştu: " + error.message);
+        }
+    });
+
+    // reCAPTCHA Kurulumu (SMS Güvenliği İçin)
+    function setupRecaptcha() {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {}
+            });
+        }
+    }
+
+    // 2. Telefon Numarasına SMS Gönderme
+    document.getElementById('send-otp-btn').addEventListener('click', async () => {
+        const phoneNumber = document.getElementById('phone-number').value.trim();
+        if (!phoneNumber) {
+            alert("Lütfen telefon numaranızı ülke koduyla birlikte girin (Örn: +905554443322)");
+            return;
+        }
+
+        const appVerifier = window.recaptchaVerifier;
+        try {
+            confirmationResultGlobal = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            phoneInputSection.classList.add('hidden');
+            otpVerifySection.classList.remove('hidden');
+        } catch (error) {
+            console.error("SMS gönderme hatası:", error);
+            alert("SMS gönderilemedi: " + error.message);
+        }
+    });
+
+    // 3. SMS Kodunu Doğrulama ve Firestore'a Kaydetme
+    document.getElementById('verify-otp-btn').addEventListener('click', async () => {
+        const code = document.getElementById('otp-code').value.trim();
+        if (!code || code.length < 6) {
+            alert("Lütfen gelen 6 haneli doğrulama kodunu eksiksiz girin.");
+            return;
+        }
+
+        try {
+            const result = await confirmationResultGlobal.confirm(code);
+            const phoneUser = result.user;
+
+            const userData = {
+                uid: googleUser.uid,
+                displayName: googleUser.displayName,
+                email: googleUser.email,
+                photoURL: googleUser.photoURL,
+                phoneNumber: phoneUser.phoneNumber,
+                createdAt: serverTimestamp()
+            };
+
+            // Firestore `users` koleksiyonuna kaydet
+            await setDoc(doc(db, "users", googleUser.uid), userData, { merge: true });
+
+            otpVerifySection.classList.add('hidden');
+            showDashboard(userData);
+        } catch (error) {
+            console.error("OTP doğrulama hatası:", error);
+            alert("Kod doğrulanamadı: " + error.message);
+        }
+    });
+
+    // Ana Ekran Gösterimi
+    function showDashboard(data) {
+        document.getElementById('user-name').innerText = data.displayName || "Kullanıcı";
+        document.getElementById('info-email').innerText = data.email || "-";
+        document.getElementById('info-phone').innerText = data.phoneNumber || "-";
+        
+        googleAuthSection.classList.add('hidden');
+        phoneInputSection.classList.add('hidden');
+        otpVerifySection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+    }
+
+    // Oturumu Kapat
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.reload();
+    });
+</script>
