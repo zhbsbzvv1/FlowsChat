@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col justify-between selection:bg-black selection:text-white relative">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
 
     <!-- Üst Menü -->
     <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
@@ -37,7 +37,7 @@
         <!-- SOL/ORTA: Akış veya Profil -->
         <div class="md:col-span-3 space-y-6">
             
-            <!-- ANA AKIŞ -->
+            <!-- ANA AKIŞ (Yeni Kullanıcılar ve Sayfalama) -->
             <div id="view-feed" class="space-y-6">
                 <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
                     <h2 class="text-xl font-bold tracking-tight">Yeni Katılan Kullanıcılar</h2>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- KULLANICI PROFİLİ -->
+            <!-- KULLANICI PROFİLİ (#profiles&uid) -->
             <div id="view-profile" class="hidden space-y-6">
                 <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
@@ -97,6 +97,15 @@
 
     </main>
 
+    <!-- KULLANICI LİSTESİ MODALI -->
+    <div id="users-list-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 relative space-y-4 max-h-[80vh] overflow-y-auto">
+            <button id="close-users-list-modal" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
+            <h3 id="users-modal-title" class="text-lg font-bold">Kullanıcılar</h3>
+            <div id="users-modal-container" class="space-y-3"></div>
+        </div>
+    </div>
+
     <!-- MESAJLAŞMA MODALI -->
     <div id="chat-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 relative flex flex-col h-[600px] overflow-hidden">
@@ -112,42 +121,10 @@
 
             <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 flex flex-col"></div>
 
-            <!-- Mesaj Gönderme ve GIF Buton Alanı -->
-            <div class="p-4 bg-white border-t border-gray-100 flex gap-2 items-center">
+            <div class="p-4 bg-white border-t border-gray-100 flex gap-2">
                 <input type="text" id="chat-input-text" placeholder="Mesaj yazın..." class="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none text-sm">
-                <button id="open-gif-modal-btn" class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-xs font-bold rounded-2xl transition-all flex items-center gap-1 border border-gray-200" title="GIF Gönder">
-                    👾 GIF
-                </button>
                 <button id="chat-send-btn" class="px-6 py-3 bg-black text-white rounded-2xl text-sm font-semibold hover:bg-gray-800 transition-all">Gönder</button>
             </div>
-        </div>
-    </div>
-
-    <!-- AYRI GIF ARAMA VE SEÇİM POP-UP MODALI -->
-    <div id="gif-picker-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 relative space-y-4">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <h3 class="text-base font-bold flex items-center gap-2">👾 Tenor GIF Ara</h3>
-                <button id="close-gif-modal-btn" class="text-gray-400 hover:text-black text-xl font-bold">&times;</button>
-            </div>
-            
-            <div class="flex gap-2">
-                <input type="text" id="tenor-search-input" placeholder="GIF Ara (ör: komik, kedi, merhaba)..." class="flex-1 px-4 py-2.5 text-xs border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black">
-                <button id="tenor-search-btn" class="px-5 py-2.5 bg-black text-white text-xs font-semibold rounded-2xl hover:bg-gray-800 transition-all">Ara</button>
-            </div>
-
-            <div id="tenor-results-container" class="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1 scrollbar-thin">
-                <div class="text-xs text-gray-400 col-span-3 text-center py-8">GIF'ler yükleniyor...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- KULLANICI LİSTESİ MODALI -->
-    <div id="users-list-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 relative space-y-4 max-h-[80vh] overflow-y-auto">
-            <button id="close-users-list-modal" class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl font-bold">&times;</button>
-            <h3 id="users-modal-title" class="text-lg font-bold">Kullanıcılar</h3>
-            <div id="users-modal-container" class="space-y-3"></div>
         </div>
     </div>
 
@@ -162,7 +139,7 @@
             <div class="space-y-4 pt-2">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Kullanıcı Adı (Nickname)</label>
-                    <input type="text" id="settings-nickname-input" placeholder="8-16 karakter (Harf, rakam, _, -)" minlength="8" maxlength="16" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    <input type="text" id="settings-nickname-input" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                 </div>
                 <button id="save-nickname-settings-btn" class="w-full py-3.5 bg-black text-white rounded-2xl text-sm font-medium hover:bg-gray-800 transition-all">Kullanıcı Adını Güncelle</button>
                 <div class="border-t border-gray-100 my-2"></div>
@@ -180,7 +157,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Görünen Ad</label>
-                    <input type="text" id="edit-display-name" placeholder="8-16 karakter (Harf, rakam, boşluk, _, -)" minlength="8" maxlength="16" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
+                    <input type="text" id="edit-display-name" class="w-full px-4 py-3.5 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-black focus:outline-none transition-all text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Cihazdan Fotoğraf Seç</label>
@@ -203,16 +180,6 @@
         </div>
     </div>
 
-    <!-- SAĞ ALT YENİ MESAJ POP-UP BİLDİRİMİ -->
-    <div id="toast-notification" class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-2xl rounded-2xl p-4 hidden flex items-center gap-4 z-50 max-w-sm transition-all transform duration-300">
-        <img id="toast-avatar" src="" class="w-10 h-10 rounded-full object-cover bg-gray-200 flex-shrink-0">
-        <div class="flex-1 cursor-pointer" id="toast-body">
-            <h5 id="toast-name" class="text-xs font-bold text-gray-900"></h5>
-            <p id="toast-text" class="text-xs text-gray-500 truncate max-w-[180px]"></p>
-        </div>
-        <button id="toast-close-btn" class="text-gray-400 hover:text-black font-bold text-lg">&times;</button>
-    </div>
-
     <footer class="p-6 text-center text-xs text-gray-400 border-t border-gray-100 bg-white">
         &copy; 2026 FlowsChat. Tüm hakları saklıdır.
     </footer>
@@ -221,9 +188,6 @@
     <script type="module">
         import { auth, db, signOut, deleteUser, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, onSnapshot, writeBatch, addDoc, updateDoc } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        // TENOR (Google) GIF Ücretsiz API Anahtarı
-        const TENOR_API_KEY = "LIVDSRZULELA";
 
         let currentUser = null;
         let currentUserData = null;
@@ -237,20 +201,8 @@
 
         let unreadMessagesMap = {};
         let uploadedPhotoBase64 = "";
-        let initialSnapshotDone = {};
-
+        
         const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='100%25' height='100%25'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23f3f4f6'/%3E%3Cpath d='M12 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5z' fill='%239ca3af'/%3E%3C/svg%3E";
-
-        function isValidNickname(str) {
-            const regex = /^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ\-]{8,16}$/;
-            return regex.test(str);
-        }
-
-        function isValidDisplayName(str) {
-            if (str.length < 8 || str.length > 16) return false;
-            const invalidCharsRegex = /[?+%@!\/\\*<>#$^&(){}\[\]~|:;"',]/;
-            return !invalidCharsRegex.test(str);
-        }
 
         function updatePageTitle() {
             let totalUnread = 0;
@@ -262,28 +214,6 @@
                 document.title = `FlowsChat`;
             }
         }
-
-        function showToastNotification(peer, text) {
-            const toast = document.getElementById('toast-notification');
-            document.getElementById('toast-avatar').src = peer.photoURL || defaultAvatar;
-            document.getElementById('toast-name').innerText = peer.displayName || peer.nickname;
-            document.getElementById('toast-text').innerText = text.startsWith('http') ? '📷 Görsel/GIF' : text;
-
-            document.getElementById('toast-body').onclick = () => {
-                toast.classList.add('hidden');
-                openChatModal(peer.uid, peer);
-            };
-
-            toast.classList.remove('hidden');
-
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 5000);
-        }
-
-        document.getElementById('toast-close-btn').onclick = () => {
-            document.getElementById('toast-notification').classList.add('hidden');
-        };
 
         function showAlert(title, message, callback = null, showCancel = false) {
             document.getElementById('alert-title').innerText = title;
@@ -588,19 +518,6 @@
                     const lastMsg = snapshot.docs[0].data();
                     const timeStr = lastMsg.createdAt && lastMsg.createdAt.toDate ? lastMsg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
-                    if (initialSnapshotDone[chatId]) {
-                        snapshot.docChanges().forEach(change => {
-                            if (change.type === "added") {
-                                const newMsg = change.doc.data();
-                                if (newMsg.receiverUid === currentUser.uid && activeChatUserId !== peer.uid) {
-                                    showToastNotification(peer, newMsg.text);
-                                }
-                            }
-                        });
-                    } else {
-                        initialSnapshotDone[chatId] = true;
-                    }
-
                     if (!chatCard) {
                         chatCard = document.createElement('div');
                         chatCard.id = `sidebar-chat-${peer.uid}`;
@@ -608,15 +525,12 @@
                         sidebarContainer.appendChild(chatCard);
                     }
 
-                    const isGif = lastMsg.text && lastMsg.text.startsWith('http');
-                    const displayMsgText = isGif ? '📷 GIF' : lastMsg.text;
-
                     chatCard.innerHTML = `
                         <div class="flex items-center gap-3 overflow-hidden">
                             <img src="${peer.photoURL || defaultAvatar}" class="w-9 h-9 rounded-full object-cover bg-gray-200 flex-shrink-0">
                             <div class="truncate">
                                 <h4 class="text-xs font-bold truncate">${peer.displayName || peer.nickname}</h4>
-                                <p class="text-[11px] text-gray-500 truncate">${lastMsg.senderUid === currentUser.uid ? 'Sen: ' : ''}${displayMsgText}</p>
+                                <p class="text-[11px] text-gray-500 truncate">${lastMsg.senderUid === currentUser.uid ? 'Sen: ' : ''}${lastMsg.text}</p>
                             </div>
                         </div>
                         <span class="text-[10px] text-gray-400 flex-shrink-0 ml-2">${timeStr}</span>
@@ -799,16 +713,11 @@
                             : `<span class="text-gray-400 font-bold tracking-tighter ml-1">✓✓</span>`;
                     }
 
-                    const isGif = m.text && m.text.startsWith('http');
-                    const messageContent = isGif 
-                        ? `<img src="${m.text}" class="rounded-xl max-w-full max-h-48 object-cover">` 
-                        : m.text;
-
                     const div = document.createElement('div');
                     div.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1`;
                     div.innerHTML = `
                         <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'bg-black text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-none'}">
-                            ${messageContent}
+                            ${m.text}
                         </div>
                         <div class="flex items-center gap-1 text-[10px] text-gray-400 px-1">
                             <span>${timeStr}</span>
@@ -827,13 +736,12 @@
 
         document.getElementById('close-chat-modal').addEventListener('click', () => {
             document.getElementById('chat-modal').classList.add('hidden');
-            activeChatUserId = null;
             if (messagesUnsubscribe) messagesUnsubscribe();
         });
 
-        async function sendMessage(textToSend = null) {
+        document.getElementById('chat-send-btn').onclick = async () => {
             const input = document.getElementById('chat-input-text');
-            const text = textToSend || input.value.trim();
+            const text = input.value.trim();
             if (!text || !activeChatUserId) return;
 
             const chatId = getChatId(currentUser.uid, activeChatUserId);
@@ -846,117 +754,37 @@
                     seen: false,
                     createdAt: serverTimestamp()
                 });
-                if (!textToSend) input.value = '';
+                input.value = '';
             } catch (err) {
                 console.error("Mesaj hatası:", err);
                 showAlert("Hata", "Mesaj gönderilemedi: " + err.message);
             }
-        }
+        };
 
-        document.getElementById('chat-send-btn').onclick = () => sendMessage();
-
-        // KLAVYEDEN ENTER İLE MESAJ GÖNDERME
-        document.getElementById('chat-input-text').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // ÜCRETSİZ TENOR (GOOGLE) GIF MODAL ENTEGRASYONU
-        const gifModal = document.getElementById('gif-picker-modal');
-        document.getElementById('open-gif-modal-btn').addEventListener('click', () => {
-            gifModal.classList.remove('hidden');
-            fetchTenorGifs('featured');
-        });
-
-        document.getElementById('close-gif-modal-btn').addEventListener('click', () => {
-            gifModal.classList.add('hidden');
-        });
-
-        document.getElementById('tenor-search-btn').addEventListener('click', () => {
-            const queryText = document.getElementById('tenor-search-input').value.trim();
-            if (queryText) fetchTenorGifs('search', queryText);
-        });
-
-        document.getElementById('tenor-search-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const queryText = document.getElementById('tenor-search-input').value.trim();
-                if (queryText) fetchTenorGifs('search', queryText);
-            }
-        });
-
-        async function fetchTenorGifs(type = 'featured', queryText = '') {
-            const resultsContainer = document.getElementById('tenor-results-container');
-            resultsContainer.innerHTML = `<div class="text-xs text-gray-400 col-span-3 text-center py-8">GIF'ler yükleniyor...</div>`;
-
-            let url = `https://g.tenor.com/v1/featured?key=${TENOR_API_KEY}&limit=18`;
-            if (type === 'search') {
-                url = `https://g.tenor.com/v1/search?q=${encodeURIComponent(queryText)}&key=${TENOR_API_KEY}&limit=18`;
-            }
-
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                resultsContainer.innerHTML = '';
-
-                if (!data.results || data.results.length === 0) {
-                    resultsContainer.innerHTML = `<div class="text-xs text-gray-400 col-span-3 text-center py-8">GIF bulunamadı.</div>`;
-                    return;
-                }
-
-                data.results.forEach(item => {
-                    const gifUrl = item.media[0].gif.url || item.media[0].tinygif.url;
-                    const img = document.createElement('img');
-                    img.src = item.media[0].tinygif.url || gifUrl;
-                    img.className = "h-20 w-full rounded-xl cursor-pointer hover:opacity-80 transition-all border border-gray-100 object-cover";
-                    img.onclick = () => {
-                        sendMessage(gifUrl);
-                        gifModal.classList.add('hidden');
-                    };
-                    resultsContainer.appendChild(img);
-                });
-            } catch (err) {
-                console.error("Tenor API Hatası:", err);
-                resultsContainer.innerHTML = `<div class="text-xs text-red-400 col-span-3 text-center py-8">GIF servisinden yanıt alınamadı.</div>`;
-            }
-        }
-
-        // KULLANICI ADI GÜNCELLEME (Boşluksuz, 8-16 Karakter & Özel Karakter Engeli)
         document.getElementById('save-nickname-settings-btn').addEventListener('click', async () => {
             const raw = document.getElementById('settings-nickname-input').value.trim();
             const lower = raw.toLowerCase();
 
-            if (!isValidNickname(raw)) {
-                return showAlert("Uyarı", "Kullanıcı adı 8 ile 16 karakter arasında olmalı, boşluk içermemeli ve ? + % @ gibi özel karakterler barındırmamalıdır.");
-            }
+            if (lower.length < 3) return showAlert("Uyarı", "Kullanıcı adı en az 3 karakter olmalıdır.");
+            if (lower === currentUserData.nicknameLower) return showAlert("Bilgi", "Mevcut kullanıcı adınızla aynı.");
 
-            if (lower === currentUserData.nicknameLower) {
-                return showAlert("Bilgi", "Mevcut kullanıcı adınızla aynı.");
-            }
+            const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
+            const snap = await getDocs(q);
+            let taken = false;
+            snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
 
-            try {
-                const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
-                const snap = await getDocs(q);
-                let taken = false;
-                snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
+            if (taken) return showAlert("Hata", "Bu kullanıcı adı alınmış.");
 
-                if (taken) return showAlert("Hata", "Bu kullanıcı adı zaten alınmış.");
-
-                await setDoc(doc(db, "users", currentUser.uid), { nickname: raw, nicknameLower: lower }, { merge: true });
-                document.getElementById('settings-modal').classList.add('hidden');
-                
-                currentUserData.nickname = raw;
-                currentUserData.nicknameLower = lower;
-                document.getElementById('nav-user-nickname').innerText = raw;
-                showAlert("Başarılı", "Kullanıcı adınız güncellendi.");
-            } catch (err) {
-                console.error("Kullanıcı adı güncelleme hatası:", err);
-                showAlert("Hata", "Kullanıcı adı güncellenemedi: " + err.message);
-            }
+            await setDoc(doc(db, "users", currentUser.uid), { nickname: raw, nicknameLower: lower }, { merge: true });
+            document.getElementById('settings-modal').classList.add('hidden');
+            
+            currentUserData.nickname = raw;
+            currentUserData.nicknameLower = lower;
+            document.getElementById('nav-user-nickname').innerText = raw;
+            showAlert("Başarılı", "Kullanıcı adınız güncellendi.");
         });
 
-        // Cihazdan Görsel Yükleme ve Otomatik Boyutlandırma
+        // Cihazdan Görsel Yükleme ve Otomatik Boyutlandırma (Canvas Optimization)
         document.getElementById('edit-photo-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -966,7 +794,7 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const maxDim = 300;
+                    const maxDim = 300; // Optimum profil resmi boyutu (300x300)
                     let width = img.width;
                     let height = img.height;
 
@@ -999,33 +827,20 @@
             showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan avatara dönebilirsiniz.");
         });
 
-        // GÖRÜNEN AD GÜNCELLEME (İsim Soyisim Boşluk İzinli, 8-16 Karakter & Özel Karakter Engeli)
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
             const newName = document.getElementById('edit-display-name').value.trim();
+            if (!newName) return showAlert("Uyarı", "Görünen ad boş olamaz.");
+
+            await setDoc(doc(db, "users", currentUser.uid), { displayName: newName, photoURL: uploadedPhotoBase64 }, { merge: true });
+            document.getElementById('edit-profile-modal').classList.add('hidden');
             
-            if (!isValidDisplayName(newName)) {
-                return showAlert("Uyarı", "Görünen ad 8 ile 16 karakter arasında olmalı ve ? + % @ gibi özel karakterler içermemelidir.");
-            }
-
-            try {
-                await setDoc(doc(db, "users", currentUser.uid), { 
-                    displayName: newName, 
-                    photoURL: uploadedPhotoBase64 
-                }, { merge: true });
-
-                document.getElementById('edit-profile-modal').classList.add('hidden');
-                
-                currentUserData.displayName = newName;
-                currentUserData.photoURL = uploadedPhotoBase64;
-                document.getElementById('nav-user-avatar').src = uploadedPhotoBase64 || defaultAvatar;
-                
-                await checkRoute();
-                showAlert("Başarılı", "Profiliniz güncellendi.");
-            } catch (err) {
-                console.error("Profil güncelleme hatası:", err);
-                showAlert("Hata", "Profil kaydedilemedi: " + err.message);
-            }
+            currentUserData.displayName = newName;
+            currentUserData.photoURL = uploadedPhotoBase64;
+            document.getElementById('nav-user-avatar').src = uploadedPhotoBase64 || defaultAvatar;
+            checkRoute();
+            showAlert("Başarılı", "Profiliniz güncellendi.");
         });
     </script>
 </body>
 </html>
+
