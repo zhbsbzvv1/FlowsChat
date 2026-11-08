@@ -119,7 +119,7 @@
                 <button id="close-chat-modal" class="text-gray-400 hover:text-black text-xl font-bold">&times;</button>
             </div>
 
-            <!-- GIF SEÇİCİ PANERİ -->
+            <!-- GIF SEÇİCİ PANELİ -->
             <div id="giphy-picker-panel" class="hidden border-b border-gray-100 bg-gray-50 p-3 space-y-2">
                 <div class="flex gap-2">
                     <input type="text" id="giphy-search-input" placeholder="GIPHY'de ara..." class="flex-1 px-3 py-1.5 text-xs border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-black">
@@ -213,8 +213,8 @@
         import { auth, db, signOut, deleteUser, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, onSnapshot, writeBatch, addDoc, updateDoc } from "./firebaseConfig.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // GIPHY API Anahtarı (Public Beta Key)
-        const GIPHY_API_KEY = "dc6zaTOxFJmzC";
+        // GIPHY API Key
+        const GIPHY_API_KEY = "glV9RK2587WmyqMee9P63quRIvmA8BwP";
 
         let currentUser = null;
         let currentUserData = null;
@@ -232,7 +232,6 @@
 
         const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='100%25' height='100%25'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23f3f4f6'/%3E%3Cpath d='M12 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5z' fill='%239ca3af'/%3E%3C/svg%3E";
 
-        // Girdi doğrulama: Sadece Türkçe/İngilizce harfler, rakamlar, '_' ve '-', 8-16 karakter sınırı (?+%@ vb. yasak)
         function isValidInput(str) {
             const regex = /^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ\-]{8,16}$/;
             return regex.test(str);
@@ -574,7 +573,6 @@
                     const lastMsg = snapshot.docs[0].data();
                     const timeStr = lastMsg.createdAt && lastMsg.createdAt.toDate ? lastMsg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
-                    // Pop-up bildirim tetikleyici
                     if (initialSnapshotDone[chatId]) {
                         snapshot.docChanges().forEach(change => {
                             if (change.type === "added") {
@@ -861,24 +859,24 @@
         });
 
         document.getElementById('giphy-search-btn').addEventListener('click', () => {
-            const query = document.getElementById('giphy-search-input').value.trim();
-            if (query) fetchGiphy('search', query);
+            const queryText = document.getElementById('giphy-search-input').value.trim();
+            if (queryText) fetchGiphy('search', queryText);
         });
 
         document.getElementById('giphy-search-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                const query = document.getElementById('giphy-search-input').value.trim();
-                if (query) fetchGiphy('search', query);
+                const queryText = document.getElementById('giphy-search-input').value.trim();
+                if (queryText) fetchGiphy('search', queryText);
             }
         });
 
-        async function fetchGiphy(type = 'trending', query = '') {
+        async function fetchGiphy(type = 'trending', queryText = '') {
             const resultsContainer = document.getElementById('giphy-results-container');
             resultsContainer.innerHTML = `<div class="text-xs text-gray-400 m-auto">GIF'ler yükleniyor...</div>`;
 
-            let url = `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=15&rating=g`;
+            let url = `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=20&rating=g`;
             if (type === 'search') {
-                url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=15&rating=g`;
+                url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(queryText)}&limit=20&rating=g`;
             }
 
             try {
@@ -892,7 +890,7 @@
                 }
 
                 data.data.forEach(gif => {
-                    const gifUrl = gif.images.fixed_height_small.url;
+                    const gifUrl = gif.images.fixed_height_small.url || gif.images.original.url;
                     const img = document.createElement('img');
                     img.src = gifUrl;
                     img.className = "h-24 rounded-lg cursor-pointer hover:opacity-80 transition-all border border-gray-200 flex-shrink-0 object-cover";
@@ -921,20 +919,25 @@
                 return showAlert("Bilgi", "Mevcut kullanıcı adınızla aynı.");
             }
 
-            const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
-            const snap = await getDocs(q);
-            let taken = false;
-            snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
+            try {
+                const q = query(collection(db, "users"), where("nicknameLower", "==", lower));
+                const snap = await getDocs(q);
+                let taken = false;
+                snap.forEach(d => { if (d.id !== currentUser.uid) taken = true; });
 
-            if (taken) return showAlert("Hata", "Bu kullanıcı adı zaten alınmış.");
+                if (taken) return showAlert("Hata", "Bu kullanıcı adı zaten alınmış.");
 
-            await setDoc(doc(db, "users", currentUser.uid), { nickname: raw, nicknameLower: lower }, { merge: true });
-            document.getElementById('settings-modal').classList.add('hidden');
-            
-            currentUserData.nickname = raw;
-            currentUserData.nicknameLower = lower;
-            document.getElementById('nav-user-nickname').innerText = raw;
-            showAlert("Başarılı", "Kullanıcı adınız güncellendi.");
+                await setDoc(doc(db, "users", currentUser.uid), { nickname: raw, nicknameLower: lower }, { merge: true });
+                document.getElementById('settings-modal').classList.add('hidden');
+                
+                currentUserData.nickname = raw;
+                currentUserData.nicknameLower = lower;
+                document.getElementById('nav-user-nickname').innerText = raw;
+                showAlert("Başarılı", "Kullanıcı adınız güncellendi.");
+            } catch (err) {
+                console.error("Kullanıcı adı güncelleme hatası:", err);
+                showAlert("Hata", "Kullanıcı adı güncellenemedi: " + err.message);
+            }
         });
 
         // Cihazdan Görsel Yükleme ve Otomatik Boyutlandırma
@@ -980,7 +983,7 @@
             showAlert("Bilgi", "Fotoğraf temizlendi. Kaydet butonuna basarak varsayılan avatara dönebilirsiniz.");
         });
 
-        // GÖRÜNEN AD GÜNCELLEME (8-16 Karakter & Özel Karakter Engeli)
+        // GÖRÜNEN AD GÜNCELLEME (8-16 Karakter & Özel Karakter Engeli + Düzeltilmiş Firestore Çağrısı)
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
             const newName = document.getElementById('edit-display-name').value.trim();
             
@@ -988,14 +991,24 @@
                 return showAlert("Uyarı", "Görünen ad 8 ile 16 karakter arasında olmalı ve ? + % @ gibi özel karakterler içermemelidir.");
             }
 
-            await setDoc(doc(doc(db, "users", currentUser.uid)), { displayName: newName, photoURL: uploadedPhotoBase64 }, { merge: true });
-            document.getElementById('edit-profile-modal').classList.add('hidden');
-            
-            currentUserData.displayName = newName;
-            currentUserData.photoURL = uploadedPhotoBase64;
-            document.getElementById('nav-user-avatar').src = uploadedPhotoBase64 || defaultAvatar;
-            checkRoute();
-            showAlert("Başarılı", "Profiliniz güncellendi.");
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), { 
+                    displayName: newName, 
+                    photoURL: uploadedPhotoBase64 
+                }, { merge: true });
+
+                document.getElementById('edit-profile-modal').classList.add('hidden');
+                
+                currentUserData.displayName = newName;
+                currentUserData.photoURL = uploadedPhotoBase64;
+                document.getElementById('nav-user-avatar').src = uploadedPhotoBase64 || defaultAvatar;
+                
+                await checkRoute();
+                showAlert("Başarılı", "Profiliniz güncellendi.");
+            } catch (err) {
+                console.error("Profil güncelleme hatası:", err);
+                showAlert("Hata", "Profil kaydedilemedi: " + err.message);
+            }
         });
     </script>
 </body>
